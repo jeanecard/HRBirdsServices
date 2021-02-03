@@ -1,8 +1,11 @@
-﻿using HRBirdRepository.Interface;
+﻿using HRBirdEntity;
+using HRBirdRepository.Interface;
 using HRBirdService.Interface;
+using HRBirdsModelDto;
 using HRBirdsRepository.Interface;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HRBirdService
@@ -70,8 +73,38 @@ namespace HRBirdService
                 throw new Exception("_birdsSubmissionrepo.GetMatchingVernacularNamesAsync error");
             }
             //3- sort and return 
-            return vernacularNames;
+            return vernacularNames.OrderBy(name => name);
 
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="picture"></param>
+        /// <returns></returns>
+        public async Task AddPictureAsync(HRSubmitPictureInput picture)
+        {
+            if(picture != null)
+            {// TODO Automapper
+
+                HRSubmitPicture pic = new HRSubmitPicture()
+                {
+                    Credit = picture.Credit,
+                    Id = Guid.NewGuid(),
+                    Id_source = 42,
+                    Image_data = picture.ImageData,
+                    Type_age = 2,
+                    Type_gender = 2,
+                    Vernacular_name = picture.VernacularName
+                };
+
+                using var birdsTask = _birdsSubmissionrepo.AddPictureAsync(pic);
+                await birdsTask;
+                if(!birdsTask.IsCompletedSuccessfully)
+                {
+                    throw new Exception("_birdsSubmissionrepo.AddPictureAsync fail.");
+                }
+            }
+            
         }
     }
 }

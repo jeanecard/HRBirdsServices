@@ -6,11 +6,11 @@ namespace HRBirdService.Config
 {
     static public class BirdServiceDISettings
     {
-        public static void AddDI(IServiceCollection services)
+        public static IServiceCollection AddDI(IServiceCollection services)
         {
             services.AddTransient<IHRBirdService, HRBirdServices.Implementation.HRBirdService>();
             services.AddTransient<IBirdsSubmissionService, BirdsSubmissionService>();
-
+            return services;
         }
     }
 }

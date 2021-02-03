@@ -9,11 +9,11 @@ namespace HRBirdRepository
 {
     public static class BirdRepositoryDISettings
     {
-        public static void AddDI(IServiceCollection services)
+        public static IServiceCollection AddDI(IServiceCollection services)
         {
             services.AddTransient<IHRBirdRepository, HRBirdsRepository.Implementation.HRBirdRepository>();
             services.AddTransient<IHRBirdSubmissionRepository, HRBirdSubmissionRepository>();
-
+            return services;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
@@ -15,7 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HRBirdsModel\HRBirdsModel.csproj" />
+    <ProjectReference Include="..\HRBirdsEntities\HRBirdsEntities.csproj" />
+    <ProjectReference Include="..\HRBirdsModel\HRBirdsModelDto.csproj" />
   </ItemGroup>
 
 </Project>

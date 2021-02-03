@@ -9,6 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HRBirdsModel\HRBirdsModelDto.csproj" />
     <ProjectReference Include="..\HRBirdsRepository\HRBirdRepository.csproj" />
   </ItemGroup>
 

@@ -53,10 +53,14 @@ namespace HRBirdsWebAPI
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseAuthorization();
+
+            app.UseCors(builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+
             app.UseOpenApi();
             app.UseSwaggerUi3();
             app.UseEndpoints(endpoints =>

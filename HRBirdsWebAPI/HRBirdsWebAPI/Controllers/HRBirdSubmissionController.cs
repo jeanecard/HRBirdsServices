@@ -1,4 +1,5 @@
 ﻿using HRBirdService.Interface;
+using HRBirdsModelDto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -61,6 +62,37 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
                     }
                     return Ok(taskResult.Result);
                 } 
+                else
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+
+        [HttpPost("add-image")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
+        public async Task<ActionResult> Post([FromBody] HRSubmitPictureInput picture)
+        {
+            if (picture == null)
+            {
+                return new StatusCodeResult(StatusCodes.Status400BadRequest);
+            }
+            try
+            {
+                using var taskResult = _birdsSubmissionService.AddPictureAsync(picture);
+                await taskResult;
+                if (taskResult.IsCompletedSuccessfully)
+                {
+                    return Ok();
+                }
                 else
                 {
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);
