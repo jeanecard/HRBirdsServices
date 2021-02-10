@@ -87,7 +87,7 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<HRSubmitPictureOutput>>> GetImagesAsync([FromRoute] string vernacularName)
+        public async Task<ActionResult<IEnumerable<HRSubmitPictureListItemDto>>> GetImagesAsync([FromRoute] string vernacularName)
         {
             if (String.IsNullOrEmpty(vernacularName))
             {
@@ -116,11 +116,6 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }
-
-
-
-
-
 
         [HttpPost("add-image")]
         [ProducesResponseType(StatusCodes.Status200OK)]

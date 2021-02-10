@@ -10,7 +10,7 @@ namespace HRBirdService.Interface
 {
     public interface IBirdsSubmissionService
     {
-        Task<IEnumerable<HRSubmitPictureOutput>> GetSubmittedPicturesAsync(String vernacularName);
+        Task<IEnumerable<HRSubmitPictureListItemDto>> GetSubmittedPicturesAsync(String vernacularName);
         Task<IEnumerable<String>> GetMatchingVernacularNamesAsync(string pattern);
         Task AddPictureAsync(HRSubmitPictureInput picture);
         Task<IEnumerable<HRSubmitGenderDto>> GetGenderTypesAsync();

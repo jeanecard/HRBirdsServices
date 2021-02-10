@@ -11,7 +11,7 @@ namespace HRBirdRepository.Interface
     public interface IHRBirdSubmissionRepository
     {
         Task<IEnumerable<String>> GetMatchingVernacularNamesAsync(string pattern);
-        Task<IEnumerable<HRSubmitPicture>> GetSubmittedPicturesAsync(String vernacularName);
+        Task<IEnumerable<HRSubmitPictureListItem>> GetSubmittedPicturesAsync(String vernacularName);
         Task AddPictureAsync(HRSubmitPicture picture);
         Task<HRSubmitPicture> UpdatePictureAsync(HRSubmitPicture picture);
         Task DeletePictureAsync(Guid id);

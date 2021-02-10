@@ -22,7 +22,7 @@ namespace HRBirdRepository
         // V_HRSubmitGeneralInformation
         public static string SQLQUERY_VERNACULAR_NAMES { get; } = " SELECT id FROM public.\"V_HRSubmitNames\" WHERE id iLIKE @Pattern ORDER BY id DESC  ";
         public static string SQLINSERT_PICTURE { get; } = "INSERT INTO public.\"HRSubmitBirdPicture\"(id, vernacular_name, type_age, type_gender, id_source, credit, url_fullsize, url_thumbnail, comment) VALUES(@Id, @Vernacular_Name, @Type_age, @Type_gender, @Id_source, @Credit, @Url_fullsize, @Url_thumbnail, @Comment);";
-        public static string SQLQUERY_IMAGES { get; } = "SELECT * FROM public.\"V_HRSubmitBirdPicture\" WHERE vernacular_name iLIKE @VernacularName ";
+        public static string SQLQUERY_IMAGES { get; } = "SELECT * FROM public.\"V_HRSubmitPictureList\" WHERE vernacularName iLIKE @VernacularName ";
 
         public static String SQLQUERY_TYPE_AGES {get;} = "SELECT * FROM public.\"V_HRSubmitAges\"";
         public static String SQLQUERY_GENDERS { get; } = "SELECT * FROM public.\"V_HRSubmitGender\"";
@@ -126,7 +126,7 @@ namespace HRBirdRepository
         /// </summary>
         /// <param name="vernacularName"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<HRSubmitPicture>> GetSubmittedPicturesAsync(string vernacularName)
+        public async Task<IEnumerable<HRSubmitPictureListItem>> GetSubmittedPicturesAsync(string vernacularName)
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
@@ -135,7 +135,7 @@ namespace HRBirdRepository
                 conn.Open();
                 try
                 {
-                    using (Task<IEnumerable<HRSubmitPicture>> retourTask = conn.QueryAsync<HRSubmitPicture>(SQLQUERY_IMAGES, new { VernacularName = vernacularName }))
+                    using (Task<IEnumerable<HRSubmitPictureListItem>> retourTask = conn.QueryAsync<HRSubmitPictureListItem>(SQLQUERY_IMAGES, new { VernacularName = vernacularName }))
                     {
                         await retourTask;
                         if (retourTask.IsCompleted)

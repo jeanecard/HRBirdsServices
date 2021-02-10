@@ -136,27 +136,13 @@ namespace HRBirdService
         /// </summary>
         /// <param name="vernacularName"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<HRSubmitPictureOutput>> GetSubmittedPicturesAsync(string vernacularName)
+        public async Task<IEnumerable<HRSubmitPictureListItemDto>> GetSubmittedPicturesAsync(string vernacularName)
         {
             using var birdsSubmissionTask = _birdsSubmissionrepo.GetSubmittedPicturesAsync(vernacularName);
             await birdsSubmissionTask;
             if (birdsSubmissionTask.IsCompletedSuccessfully)
             {
-                List<HRSubmitPictureOutput> retour = new List<HRSubmitPictureOutput>();
-                foreach(HRSubmitPicture iter in birdsSubmissionTask.Result)
-                {
-                    retour.Add(new HRSubmitPictureOutput()
-                    {
-                        credit = iter.Credit,
-                        id = iter.Id.ToString(),
-                        isMale = true,
-                        source = iter.Id_source.ToString(),
-                        url = iter.Image_data?.ToCharArray(),
-                        typeAge = iter.Type_age.ToString(),
-                        vernacularName = iter.Vernacular_name
-                    }); ;
-                }
-                return retour;
+                return _mapper.Map<IEnumerable<HRSubmitPictureListItemDto>>(birdsSubmissionTask.Result);
             }
             else
             {
