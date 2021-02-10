@@ -9,10 +9,16 @@ namespace HRBirdRepository
 {
     public static class BirdRepositoryDISettings
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
         public static IServiceCollection AddDI(IServiceCollection services)
         {
             services.AddTransient<IHRBirdRepository, HRBirdsRepository.Implementation.HRBirdRepository>();
             services.AddTransient<IHRBirdSubmissionRepository, HRBirdSubmissionRepository>();
+            services.AddTransient<IHRPictureConverterRepository, HRPictureConverterRepository>();
             return services;
         }
     }

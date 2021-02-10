@@ -1,9 +1,13 @@
-﻿using HRBirdService.Interface;
+﻿using Azure.Storage;
+using Azure.Storage.Blobs;
+using HRBirdEntity;
+using HRBirdService.Interface;
 using HRBirdsModelDto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -73,6 +77,50 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
             }
         }
 
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
+        [HttpGet("get-images/{vernacularName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<HRSubmitPictureOutput>>> GetImagesAsync([FromRoute] string vernacularName)
+        {
+            if (String.IsNullOrEmpty(vernacularName))
+            {
+                return new StatusCodeResult(StatusCodes.Status400BadRequest);
+            }
+            try
+            {
+                using var taskResult = _birdsSubmissionService.GetSubmittedPicturesAsync(vernacularName);
+                await taskResult;
+                if (taskResult.IsCompletedSuccessfully)
+                {
+                    if (taskResult.Result == null || taskResult.Result.Count() == 0)
+                    {
+                        return new StatusCodeResult(StatusCodes.Status204NoContent);
+
+                    }
+                    return Ok(taskResult.Result);
+                }
+                else
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+
+
+
+
 
         [HttpPost("add-image")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -102,6 +150,42 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
             {
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
+        }
+
+        [HttpPost("add-picture")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Post([FromBody] FileToUpload theFile)
+        {
+
+            if (theFile.FileAsBase64.Contains(","))
+            {
+                theFile.FileAsBase64 = theFile.FileAsBase64.Substring(theFile.FileAsBase64.IndexOf(",") + 1);
+            }
+            theFile.FileAsByteArray = Convert.FromBase64String(theFile.FileAsBase64);
+            using (var fs = new MemoryStream(theFile.FileAsByteArray))
+            {
+                Uri blobUri = new Uri("https://" +
+                                 "hrbirdsblobstorage" +
+                                 ".blob.core.windows.net/" +
+                                 "fullimage" +
+                                 "/" + "rastos/" + theFile.FileName);
+
+                // Create StorageSharedKeyCredentials object by reading
+                // the values from the configuration (appsettings.json)
+                StorageSharedKeyCredential storageCredentials =
+                    new StorageSharedKeyCredential("hrbirdsblobstorage", "tXCZ1DtJHdWDy+7GiVNFM0lkXb5/RRFvq91/h4MR688uisqXqPD41YD1C2WXhFRZ8yEDNfCeqbWG8iZutsVhTA==");
+
+                // Create the blob client.
+                BlobClient blobClient = new BlobClient(blobUri, storageCredentials);
+
+                // Upload the file
+                var suacisseTask = blobClient.UploadAsync(fs);
+                await suacisseTask;
+
+            }
+            return Ok();
         }
     }
 }

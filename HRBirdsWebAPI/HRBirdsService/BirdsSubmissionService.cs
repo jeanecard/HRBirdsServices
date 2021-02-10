@@ -1,5 +1,7 @@
-﻿using HRBirdEntity;
+﻿using AutoMapper;
+using HRBirdEntity;
 using HRBirdRepository.Interface;
+using HRBirdsEntities;
 using HRBirdService.Interface;
 using HRBirdsModelDto;
 using HRBirdsRepository.Interface;
@@ -12,8 +14,11 @@ namespace HRBirdService
 {
     public class BirdsSubmissionService : IBirdsSubmissionService
     {
-        private IHRBirdRepository _birdsRepo = null;
-        private IHRBirdSubmissionRepository _birdsSubmissionrepo = null;
+        private readonly IHRBirdRepository _birdsRepo = null;
+        private readonly  IHRBirdSubmissionRepository _birdsSubmissionrepo = null;
+        private readonly IHRPictureConverterRepository _birdsPictureConverter = null;
+        private readonly IMapper _mapper;
+
         private BirdsSubmissionService()
         {
             // Dummy for DI.
@@ -23,10 +28,16 @@ namespace HRBirdService
         /// </summary>
         /// <param name="bRepo"></param>
         /// <param name="bSubRepo"></param>
-        public BirdsSubmissionService(IHRBirdRepository bRepo, IHRBirdSubmissionRepository bSubRepo)
+        public BirdsSubmissionService(
+            IHRBirdRepository bRepo, 
+            IHRBirdSubmissionRepository bSubRepo,
+            IHRPictureConverterRepository picConverter,
+            IMapper mapper)
         {
             _birdsRepo = bRepo;
             _birdsSubmissionrepo = bSubRepo;
+            _birdsPictureConverter = picConverter;
+            _mapper = mapper;
 
         }
 
@@ -77,7 +88,8 @@ namespace HRBirdService
 
         }
         /// <summary>
-        /// 
+        /// 1- Submit picture to image Repository
+        /// 2- Submit image Data with its url(from previous step) to Image data repository
         /// </summary>
         /// <param name="picture"></param>
         /// <returns></returns>
@@ -85,7 +97,6 @@ namespace HRBirdService
         {
             if(picture != null)
             {// TODO Automapper
-
                 HRSubmitPicture pic = new HRSubmitPicture()
                 {
                     Credit = picture.Credit,
@@ -94,17 +105,105 @@ namespace HRBirdService
                     Image_data = picture.ImageData,
                     Type_age = 2,
                     Type_gender = 2,
-                    Vernacular_name = picture.VernacularName
+                    Vernacular_name = picture.VernacularName,
+                    Url_fullsize = String.Empty,
+                    Url_thumbnail = String.Empty,
+                    Comment = String.Empty
                 };
-
-                using var birdsTask = _birdsSubmissionrepo.AddPictureAsync(pic);
-                await birdsTask;
-                if(!birdsTask.IsCompletedSuccessfully)
+                //1- 
+                using var taskPicture =_birdsPictureConverter.AddPictureAsync(pic);
+                await taskPicture;
+                if(taskPicture.IsCompletedSuccessfully)
                 {
-                    throw new Exception("_birdsSubmissionrepo.AddPictureAsync fail.");
+                    //2-
+                    pic.Url_fullsize = taskPicture.Result;
+                    using var birdsTask = _birdsSubmissionrepo.AddPictureAsync(pic);
+                    await birdsTask;
+                    if (!birdsTask.IsCompletedSuccessfully)
+                    {
+                        throw new Exception("_birdsSubmissionrepo.AddPictureAsync fail.");
+                    }
+                }
+                else
+                {
+                    throw new Exception("_birdsPictureConverter.AddPictureAsync fail.");
                 }
             }
-            
+
+        }
+        /// <summary>
+        /// TODO DAPPER
+        /// </summary>
+        /// <param name="vernacularName"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<HRSubmitPictureOutput>> GetSubmittedPicturesAsync(string vernacularName)
+        {
+            using var birdsSubmissionTask = _birdsSubmissionrepo.GetSubmittedPicturesAsync(vernacularName);
+            await birdsSubmissionTask;
+            if (birdsSubmissionTask.IsCompletedSuccessfully)
+            {
+                List<HRSubmitPictureOutput> retour = new List<HRSubmitPictureOutput>();
+                foreach(HRSubmitPicture iter in birdsSubmissionTask.Result)
+                {
+                    retour.Add(new HRSubmitPictureOutput()
+                    {
+                        credit = iter.Credit,
+                        id = iter.Id.ToString(),
+                        isMale = true,
+                        source = iter.Id_source.ToString(),
+                        url = iter.Image_data?.ToCharArray(),
+                        typeAge = iter.Type_age.ToString(),
+                        vernacularName = iter.Vernacular_name
+                    }); ;
+                }
+                return retour;
+            }
+            else
+            {
+                throw new Exception("_birdsSubmissionrepo.GetSubmittedPicturesAsync error");
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<HRSubmitGenderDto>> GetGenderTypesAsync()
+        {
+            using Task<IEnumerable<HRSubmitGender>> getTask = _birdsSubmissionrepo.GetGenderTypesAsync();
+            await getTask;
+            if(getTask.IsCompletedSuccessfully)
+            {
+                return _mapper.Map< IEnumerable<HRSubmitGenderDto>>(getTask.Result);
+            }
+            throw new Exception("Error onasync call : GetGenderTypesAsync");
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<HRSubmitAgeDto>> GetAgeTypesAsync()
+        {
+            using Task<IEnumerable<HRSubmitAge>> getTask = _birdsSubmissionrepo.GetAgeTypesAsync();
+            await getTask;
+            if (getTask.IsCompletedSuccessfully)
+            {
+                return _mapper.Map<IEnumerable<HRSubmitAgeDto>>(getTask.Result);
+            }
+            throw new Exception("Error onasync call : GetAgeTypesAsync");
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<HRSubmitSourceDto>> GetSourcesAsync()
+        {
+            using Task<IEnumerable<HRSubmitSource>> getTask = _birdsSubmissionrepo.GetSourcesAsync();
+            await getTask;
+            if (getTask.IsCompletedSuccessfully)
+            {
+                return _mapper.Map<IEnumerable<HRSubmitSourceDto>>(getTask.Result);
+            }
+            throw new Exception("Error onasync call : GetAgeTypesAsync");
         }
     }
 }

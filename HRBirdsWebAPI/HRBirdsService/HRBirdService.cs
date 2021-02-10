@@ -1,4 +1,5 @@
 ﻿
+using AutoMapper;
 using HRBirdServices.Interface;
 using HRBirdsModel;
 using HRBirdsRepository.Interface;
@@ -15,14 +16,16 @@ namespace HRBirdServices.Implementation
     internal class HRBirdService : IHRBirdService
     {
         private readonly IHRBirdRepository _repo = null;
+        private readonly IMapper _mapper;
         private HRBirdService()
         {
             //Dummy for DI.
         }
 
-        public HRBirdService(IHRBirdRepository repo)
+        public HRBirdService(IHRBirdRepository repo, IMapper mapper)
         {
             _repo = repo;
+            _mapper = mapper;
         }
 
         /// <summary>

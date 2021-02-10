@@ -41,6 +41,7 @@ namespace HRBirdsWebAPI
                 swagger.GenerateEnumMappingDescription = true;
             });
             services.AddControllers();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
         }
 

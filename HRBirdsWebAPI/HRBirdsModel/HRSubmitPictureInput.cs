@@ -8,7 +8,7 @@ namespace HRBirdsModelDto
     {
         public String Id { get; set; }
         public String VernacularName { get; set; }
-        public byte[]? ImageData { get; set; }
+        public String ImageData { get; set; }
         public int TypeAge { get; set; }
         public int TypeGender { get; set; }
         public int SourceID { get; set; }
