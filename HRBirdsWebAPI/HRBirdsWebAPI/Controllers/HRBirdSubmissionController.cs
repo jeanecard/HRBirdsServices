@@ -170,7 +170,7 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
                 // Create StorageSharedKeyCredentials object by reading
                 // the values from the configuration (appsettings.json)
                 StorageSharedKeyCredential storageCredentials =
-                    new StorageSharedKeyCredential("hrbirdsblobstorage", "tXCZ1DtJHdWDy+7GiVNFM0lkXb5/RRFvq91/h4MR688uisqXqPD41YD1C2WXhFRZ8yEDNfCeqbWG8iZutsVhTA==");
+                    new StorageSharedKeyCredential("nomarecuperer", "motdepassearecuperer");
 
                 // Create the blob client.
                 BlobClient blobClient = new BlobClient(blobUri, storageCredentials);
