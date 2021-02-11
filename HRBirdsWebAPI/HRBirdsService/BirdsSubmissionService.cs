@@ -89,42 +89,18 @@ namespace HRBirdService
         }
         /// <summary>
         /// 1- Submit picture to image Repository
-        /// 2- Submit image Data with its url(from previous step) to Image data repository
+        /// 
         /// </summary>
         /// <param name="picture"></param>
         /// <returns></returns>
-        public async Task AddPictureAsync(HRSubmitPictureInput picture)
+        public async Task AddPictureDataAsync(HRSubmitPictureInput picture)
         {
             if(picture != null)
-            {// TODO Automapper
-                HRSubmitPicture pic = new HRSubmitPicture()
-                {
-                    Credit = picture.Credit,
-                    Id = Guid.NewGuid(),
-                    Id_source = 42,
-                    Image_data = picture.ImageData,
-                    Type_age = 2,
-                    Type_gender = 2,
-                    Vernacular_name = picture.VernacularName,
-                    Url_fullsize = String.Empty,
-                    Url_thumbnail = String.Empty,
-                    Comment = String.Empty
-                };
+            {
                 //1- 
-                using var taskPicture =_birdsPictureConverter.AddPictureAsync(pic);
+                using var taskPicture = _birdsSubmissionrepo.AddPictureAsync(_mapper.Map<HRSubmitPicture>(picture));
                 await taskPicture;
-                if(taskPicture.IsCompletedSuccessfully)
-                {
-                    //2-
-                    pic.Url_fullsize = taskPicture.Result;
-                    using var birdsTask = _birdsSubmissionrepo.AddPictureAsync(pic);
-                    await birdsTask;
-                    if (!birdsTask.IsCompletedSuccessfully)
-                    {
-                        throw new Exception("_birdsSubmissionrepo.AddPictureAsync fail.");
-                    }
-                }
-                else
+                if(!taskPicture.IsCompletedSuccessfully)
                 {
                     throw new Exception("_birdsPictureConverter.AddPictureAsync fail.");
                 }

@@ -6,12 +6,11 @@ namespace HRBirdsModelDto
 {
     public class HRSubmitPictureInput
     {
-        public String Id { get; set; }
         public String VernacularName { get; set; }
-        public String ImageData { get; set; }
-        public int TypeAge { get; set; }
-        public int TypeGender { get; set; }
-        public int SourceID { get; set; }
+        public Guid? AgeType { get; set; }
+        public Guid? GenderType { get; set; }
+        public Guid? SourceType { get; set; }
         public String Credit { get; set; }
+        public String Comment { get; set; }
     }
 }

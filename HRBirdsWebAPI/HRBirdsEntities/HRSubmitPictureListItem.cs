@@ -13,5 +13,6 @@ namespace HRBirdsEntities
         public String Source { get; set; }
         public String Credit { get; set; }
         public String Thumbnail { get; set; }
+        public String Comment { get; set; }
     }
 }

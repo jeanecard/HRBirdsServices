@@ -117,7 +117,7 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
             }
         }
 
-        [HttpPost("add-image")]
+        [HttpPost("add-image-data")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -130,7 +130,7 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
             }
             try
             {
-                using var taskResult = _birdsSubmissionService.AddPictureAsync(picture);
+                using var taskResult = _birdsSubmissionService.AddPictureDataAsync(picture);
                 await taskResult;
                 if (taskResult.IsCompletedSuccessfully)
                 {

@@ -21,9 +21,8 @@ namespace HRBirdRepository
 
         // V_HRSubmitGeneralInformation
         public static string SQLQUERY_VERNACULAR_NAMES { get; } = " SELECT id FROM public.\"V_HRSubmitNames\" WHERE id iLIKE @Pattern ORDER BY id DESC  ";
-        public static string SQLINSERT_PICTURE { get; } = "INSERT INTO public.\"HRSubmitBirdPicture\"(id, vernacular_name, type_age, type_gender, id_source, credit, url_fullsize, url_thumbnail, comment) VALUES(@Id, @Vernacular_Name, @Type_age, @Type_gender, @Id_source, @Credit, @Url_fullsize, @Url_thumbnail, @Comment);";
-        public static string SQLQUERY_IMAGES { get; } = "SELECT * FROM public.\"V_HRSubmitPictureList\" WHERE vernacularName iLIKE @VernacularName ";
-
+        public static string SQLINSERT_PICTURE { get; } = "INSERT INTO public.\"HRSubmitBirdPicture\"(id, \"vernacularName\", \"ageType\", \"genderType\", \"sourceType\", credit, comment) VALUES(@id, @vernacularName, @ageType, @genderType, @sourceType, @credit, @comment);";
+        public static string SQLQUERY_IMAGES { get; } = "SELECT * FROM public.\"V_HRSubmitPictureList\" WHERE \"vernacularName\" iLIKE @VernacularName ";
         public static String SQLQUERY_TYPE_AGES {get;} = "SELECT * FROM public.\"V_HRSubmitAges\"";
         public static String SQLQUERY_GENDERS { get; } = "SELECT * FROM public.\"V_HRSubmitGender\"";
         public static String SQLQUERY_SOURCE { get; } = "SELECT * FROM public.\"V_HRSubmitSource\"";
@@ -92,6 +91,7 @@ namespace HRBirdRepository
                 conn.Open();
                 try
                 {
+                    picture.id = Guid.NewGuid();
                     using (Task<int> retourTask = conn.ExecuteAsync(SQLINSERT_PICTURE, picture))
                     {
                         await retourTask;

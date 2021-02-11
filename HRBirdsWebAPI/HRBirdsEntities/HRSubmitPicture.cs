@@ -6,17 +6,12 @@ namespace HRBirdEntity
 {
     public class HRSubmitPicture
     {
-        public Guid Id { get; set; }
-        public String Vernacular_name { get; set; }
-        public short Type_age { get; set; }
-        public short Type_gender { get; set; }
-        public short Id_source { get; set; }
-        public String Credit { get; set; }
-        public String Image_data { get; set; }
-        public String Url_fullsize { get; set; }
-        public String Url_thumbnail { get; set; }
-        public String Comment { get; set; }
-
-
+        public Guid id { get; set; }
+        public String vernacularName { get; set; }
+        public Guid ageType { get; set; }
+        public Guid genderType { get; set; }
+        public Guid sourceType { get; set; }
+        public String credit { get; set; }
+        public String comment { get; set; }
     }
 }
