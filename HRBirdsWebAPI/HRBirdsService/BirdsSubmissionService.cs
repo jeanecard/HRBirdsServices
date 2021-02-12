@@ -17,7 +17,8 @@ namespace HRBirdService
         private readonly IHRBirdRepository _birdsRepo = null;
         private readonly  IHRBirdSubmissionRepository _birdsSubmissionrepo = null;
         private readonly IHRPictureConverterRepository _birdsPictureConverter = null;
-        private readonly IMapper _mapper;
+        private readonly IMapper _mapper = null;
+        private readonly IHRBirdImageCDNService _imgCDNService = null;
 
         private BirdsSubmissionService()
         {
@@ -32,12 +33,14 @@ namespace HRBirdService
             IHRBirdRepository bRepo, 
             IHRBirdSubmissionRepository bSubRepo,
             IHRPictureConverterRepository picConverter,
+            IHRBirdImageCDNService cdn,
             IMapper mapper)
         {
             _birdsRepo = bRepo;
             _birdsSubmissionrepo = bSubRepo;
             _birdsPictureConverter = picConverter;
             _mapper = mapper;
+            _imgCDNService = cdn;
 
         }
 
@@ -98,12 +101,26 @@ namespace HRBirdService
             if(picture != null)
             {
                 //1- 
-                using var taskPicture = _birdsSubmissionrepo.AddPictureAsync(_mapper.Map<HRSubmitPicture>(picture));
-                await taskPicture;
-                if(!taskPicture.IsCompletedSuccessfully)
+                using var thumbnailTask = _imgCDNService.GetImageDataProcessingUrlAsync();
+                await thumbnailTask;
+                if(thumbnailTask.IsCompletedSuccessfully)
                 {
-                    throw new Exception("_birdsPictureConverter.AddPictureAsync fail.");
+                    var transcoPic = _mapper.Map<HRSubmitPicture>(picture);
+                    transcoPic.thumbnailUrl = thumbnailTask.Result;
+                    using var taskPicture = _birdsSubmissionrepo.AddPictureAsync(transcoPic);
+                    await taskPicture;
+                    if (!taskPicture.IsCompletedSuccessfully)
+                    {
+                        throw new Exception("_birdsPictureConverter.AddPictureAsync fail.");
+                    }
                 }
+                else
+                {
+                    throw new Exception("_imgCDNService.GetImageDataProcessingUrlAsync fail.");
+
+                }
+
+
             }
 
         }
@@ -166,6 +183,24 @@ namespace HRBirdService
                 return _mapper.Map<IEnumerable<HRSubmitSourceDto>>(getTask.Result);
             }
             throw new Exception("Error onasync call : GetAgeTypesAsync");
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task DeletePictureDataAsync(Guid id)
+        {
+            if(id == null || id == Guid.Empty)
+            {
+                throw new ArgumentNullException();
+            }
+            using var deleteTask = _birdsSubmissionrepo.DeletePictureAsync(id);
+            await deleteTask;
+            if(!deleteTask.IsCompletedSuccessfully)
+            {
+                throw new Exception("_birdsSubmissionrepo.DeletePictureAsync fail.");
+            }
         }
     }
 }

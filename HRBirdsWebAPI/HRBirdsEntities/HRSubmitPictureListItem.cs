@@ -12,7 +12,7 @@ namespace HRBirdsEntities
         public String Gender { get; set; }
         public String Source { get; set; }
         public String Credit { get; set; }
-        public String Thumbnail { get; set; }
+        public String ThumbnailUrl { get; set; }
         public String Comment { get; set; }
     }
 }

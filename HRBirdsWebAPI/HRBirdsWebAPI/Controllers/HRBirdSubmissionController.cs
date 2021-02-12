@@ -182,5 +182,30 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
             }
             return Ok();
         }
+
+        [HttpDelete("delete-image-data/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> DeleteImageDataAsync([FromRoute] Guid id)
+        {
+            try
+            {
+                using var taskResult = _birdsSubmissionService.DeletePictureDataAsync(id);
+                await taskResult;
+                if (taskResult.IsCompletedSuccessfully)
+                {
+                      return Ok();
+                }
+                else
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
     }
 }

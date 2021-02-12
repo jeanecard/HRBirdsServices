@@ -10,6 +10,7 @@ namespace HRBirdService.Config
         {
             services.AddTransient<IHRBirdService, HRBirdServices.Implementation.HRBirdService>();
             services.AddTransient<IBirdsSubmissionService, BirdsSubmissionService>();
+            services.AddTransient<IHRBirdImageCDNService, HRBirdImageCDNService>();
             return services;
         }
     }

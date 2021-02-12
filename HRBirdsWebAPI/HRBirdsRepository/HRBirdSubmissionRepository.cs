@@ -21,9 +21,10 @@ namespace HRBirdRepository
 
         // V_HRSubmitGeneralInformation
         public static string SQLQUERY_VERNACULAR_NAMES { get; } = " SELECT id FROM public.\"V_HRSubmitNames\" WHERE id iLIKE @Pattern ORDER BY id DESC  ";
-        public static string SQLINSERT_PICTURE { get; } = "INSERT INTO public.\"HRSubmitBirdPicture\"(id, \"vernacularName\", \"ageType\", \"genderType\", \"sourceType\", credit, comment) VALUES(@id, @vernacularName, @ageType, @genderType, @sourceType, @credit, @comment);";
+        public static string SQLINSERT_PICTURE { get; } = "INSERT INTO public.\"HRSubmitBirdPicture\"(id, \"vernacularName\", \"ageType\", \"genderType\", \"sourceType\", credit, comment, \"thumbnailUrl\") VALUES(@id, @vernacularName, @ageType, @genderType, @sourceType, @credit, @comment, @thumbnailUrl);";
+        public static string SQLDELETE_PICTURE { get; } = "DELETE FROM public.\"HRSubmitBirdPicture\" WHERE id = @Id";
         public static string SQLQUERY_IMAGES { get; } = "SELECT * FROM public.\"V_HRSubmitPictureList\" WHERE \"vernacularName\" iLIKE @VernacularName ";
-        public static String SQLQUERY_TYPE_AGES {get;} = "SELECT * FROM public.\"V_HRSubmitAges\"";
+        public static String SQLQUERY_TYPE_AGES { get; } = "SELECT * FROM public.\"V_HRSubmitAges\"";
         public static String SQLQUERY_GENDERS { get; } = "SELECT * FROM public.\"V_HRSubmitGender\"";
         public static String SQLQUERY_SOURCE { get; } = "SELECT * FROM public.\"V_HRSubmitSource\"";
         private HRBirdSubmissionRepository()
@@ -118,7 +119,30 @@ namespace HRBirdRepository
         /// <returns></returns>
         public async Task DeletePictureAsync(Guid id)
         {
-            await Task.Delay(1);
+            String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
+            cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
+            using (var conn = new NpgsqlConnection(cxString))
+            {
+                conn.Open();
+                try
+                {
+
+                    using var retourTask = conn.ExecuteAsync(SQLDELETE_PICTURE, new { Id = id });
+                    await retourTask;
+                    if (!retourTask.IsCompletedSuccessfully)
+                    {
+                        throw new Exception("ExecuteAsync : Can not complete Task.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (_logger != null)
+                    {
+                        _logger.LogError(ex.Message);
+                    }
+                    throw;
+                }
+            }
         }
 
         /// <summary>

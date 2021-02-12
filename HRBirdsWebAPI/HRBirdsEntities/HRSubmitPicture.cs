@@ -13,5 +13,6 @@ namespace HRBirdEntity
         public Guid sourceType { get; set; }
         public String credit { get; set; }
         public String comment { get; set; }
+        public String thumbnailUrl { get; set; }
     }
 }
