@@ -4,7 +4,7 @@ using System.Text;
 
 namespace HRBirdsModelDto
 {
-    public class HRSubmitPictureInput
+    public class HRSubmitPictureInputDto
     {
         public String VernacularName { get; set; }
         public Guid? AgeType { get; set; }

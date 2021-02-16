@@ -147,41 +147,7 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
             }
         }
 
-        [HttpPost("add-picture")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Post([FromBody] FileToUpload theFile)
-        {
-
-            if (theFile.FileAsBase64.Contains(","))
-            {
-                theFile.FileAsBase64 = theFile.FileAsBase64.Substring(theFile.FileAsBase64.IndexOf(",") + 1);
-            }
-            theFile.FileAsByteArray = Convert.FromBase64String(theFile.FileAsBase64);
-            using (var fs = new MemoryStream(theFile.FileAsByteArray))
-            {
-                Uri blobUri = new Uri("https://" +
-                                 "hrbirdsblobstorage" +
-                                 ".blob.core.windows.net/" +
-                                 "fullimage" +
-                                 "/" + "rastos/" + theFile.FileName);
-
-                // Create StorageSharedKeyCredentials object by reading
-                // the values from the configuration (appsettings.json)
-                StorageSharedKeyCredential storageCredentials =
-                    new StorageSharedKeyCredential("nomarecuperer", "motdepassearecuperer");
-
-                // Create the blob client.
-                BlobClient blobClient = new BlobClient(blobUri, storageCredentials);
-
-                // Upload the file
-                var suacisseTask = blobClient.UploadAsync(fs);
-                await suacisseTask;
-
-            }
-            return Ok();
-        }
+ 
 
         [HttpDelete("delete-image-data/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]

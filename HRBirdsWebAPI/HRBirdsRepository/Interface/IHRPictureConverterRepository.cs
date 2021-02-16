@@ -14,6 +14,6 @@ namespace HRBirdRepository.Interface
         /// </summary>
         /// <param name="rawDataPicture"></param>
         /// <returns></returns>
-        Task<String> AddPictureAsync(HRSubmitPicture rawDataPicture);
+        Task<String> AddPictureAsync(HRSubmitPictureInput rawDataPicture);
     }
 }

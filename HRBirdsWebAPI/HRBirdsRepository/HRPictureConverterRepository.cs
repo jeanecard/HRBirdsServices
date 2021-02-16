@@ -9,7 +9,7 @@ namespace HRBirdRepository
 {
     internal class HRPictureConverterRepository : IHRPictureConverterRepository
     {
-        public async Task<string> AddPictureAsync(HRSubmitPicture rawDataPicture)
+        public async Task<string> AddPictureAsync(HRSubmitPictureInput rawDataPicture)
         {
             await Task.Delay(1);
             return Guid.NewGuid().ToString() + ".jpg";

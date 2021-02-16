@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using HRBirdServices.Interface;
 using HRBirdService.Interface;
+using HRBirdService.Business;
 
 namespace HRBirdService.Config
 {
@@ -11,6 +12,8 @@ namespace HRBirdService.Config
             services.AddTransient<IHRBirdService, HRBirdServices.Implementation.HRBirdService>();
             services.AddTransient<IBirdsSubmissionService, BirdsSubmissionService>();
             services.AddTransient<IHRBirdImageCDNService, HRBirdImageCDNService>();
+            services.AddTransient<IHRPictureStorageService, HRPictureStorageService>();
+            services.AddTransient<IPictureDataFormatter, PictureDataFormatter>();
             return services;
         }
     }

@@ -1,4 +1,5 @@
 using HRBirdRepository;
+using HRBirdsEntities;
 using HRBirdService.Config;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -42,6 +43,11 @@ namespace HRBirdsWebAPI
             });
             services.AddControllers();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+            // Add functionality to inject IOptions<T>
+            services.AddOptions();
+            // Add our Config object so it can be injected
+            services.Configure<HRAzureBlobConfig>(Configuration.GetSection("HRAzureBlob"));
 
         }
 

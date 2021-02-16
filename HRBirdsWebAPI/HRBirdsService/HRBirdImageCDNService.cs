@@ -15,7 +15,7 @@ namespace HRBirdService
         public async Task<string> GetImageDataProcessingUrlAsync()
         {
             await Task.Delay(1);
-            return @"https://jeanecard.github.io/HRBirdsPicturesDB/HRAPPS-CDN/imageProcessing.jpg";
+            return @"https://jeanecard.github.io/HRBirdsPicturesDB/HRAPPS-CDN/image-processing.svg";
         }
     }
 }

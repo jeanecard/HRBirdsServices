@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HRBirdRepository
@@ -27,6 +28,11 @@ namespace HRBirdRepository
         public static String SQLQUERY_TYPE_AGES { get; } = "SELECT * FROM public.\"V_HRSubmitAges\"";
         public static String SQLQUERY_GENDERS { get; } = "SELECT * FROM public.\"V_HRSubmitGender\"";
         public static String SQLQUERY_SOURCE { get; } = "SELECT * FROM public.\"V_HRSubmitSource\"";
+        public static String SQLQUERY_GENDERTYPE { get; } = "SELECT * FROM public.\"V_HRSubmitGender\" WHERE \"Id\"::text = @Id";
+        public static String SQLQUERY_AGETYPE { get; } = "SELECT * FROM public.\"V_HRSubmitAges\" WHERE \"Id\"::text = @Id";
+        public static String SQLQUERY_SOURCETYPE { get; } = "SELECT * FROM public.\"V_HRSubmitSource\" WHERE \"Id\"::text = @Id";
+
+
         private HRBirdSubmissionRepository()
         {
             // Dummy for DI.
@@ -83,7 +89,7 @@ namespace HRBirdRepository
         /// </summary>
         /// <param name="picture"></param>
         /// <returns></returns>
-        public async Task AddPictureAsync(HRSubmitPicture picture)
+        public async Task AddPictureAsync(HRSubmitPictureInput picture)
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
@@ -92,7 +98,7 @@ namespace HRBirdRepository
                 conn.Open();
                 try
                 {
-                    picture.id = Guid.NewGuid();
+                    picture.Id = Guid.NewGuid();
                     using (Task<int> retourTask = conn.ExecuteAsync(SQLINSERT_PICTURE, picture))
                     {
                         await retourTask;
@@ -188,12 +194,15 @@ namespace HRBirdRepository
         /// </summary>
         /// <param name="picture"></param>
         /// <returns></returns>
-        public async Task<HRSubmitPicture> UpdatePictureAsync(HRSubmitPicture picture)
+        public async Task<HRSubmitPictureInput> UpdatePictureAsync(HRSubmitPictureInput picture)
         {
             await Task.Delay(1);
             return picture;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public async Task<IEnumerable<HRSubmitGender>> GetGenderTypesAsync()
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
@@ -226,7 +235,10 @@ namespace HRBirdRepository
                 }
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public async Task<IEnumerable<HRSubmitAge>> GetAgeTypesAsync()
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
@@ -259,7 +271,10 @@ namespace HRBirdRepository
                 }
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public async Task<IEnumerable<HRSubmitSource>> GetSourcesAsync()
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
@@ -291,6 +306,119 @@ namespace HRBirdRepository
                     throw;
                 }
             }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<HRSubmitGender> GetGenderTypeAsync(Guid id)
+        {
+            String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
+            cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
+            using (var conn = new NpgsqlConnection(cxString))
+            {
+                conn.Open();
+                try
+                {
+                    using (Task<IEnumerable<HRSubmitGender>> retourTask = conn.QueryAsync<HRSubmitGender>(SQLQUERY_GENDERTYPE, new { Id = id.ToString() }))
+                    {
+                        await retourTask;
+                        if (retourTask.IsCompleted)
+                        {
+                            return retourTask.Result.FirstOrDefault();
+                        }
+                        else
+                        {
+                            throw new Exception("QueryAsync : Can not complete Task.");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (_logger != null)
+                    {
+                        _logger.LogError(ex.Message);
+                    }
+                    throw;
+                }
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<HRSubmitAge> GetAgeTypeAsync(Guid id)
+        {
+            String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
+            cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
+            using (var conn = new NpgsqlConnection(cxString))
+            {
+                conn.Open();
+                try
+                {
+                    using (Task<IEnumerable<HRSubmitAge>> retourTask = conn.QueryAsync<HRSubmitAge>(SQLQUERY_AGETYPE, new { Id = id.ToString() }))
+                    {
+                        await retourTask;
+                        if (retourTask.IsCompleted)
+                        {
+                            return retourTask.Result.FirstOrDefault();
+                        }
+                        else
+                        {
+                            throw new Exception("QueryAsync : Can not complete Task.");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (_logger != null)
+                    {
+                        _logger.LogError(ex.Message);
+                    }
+                    throw;
+                }
+            }
+
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<HRSubmitSource> GetSourceAsync(Guid id)
+        {
+            String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
+            cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
+            using (var conn = new NpgsqlConnection(cxString))
+            {
+                conn.Open();
+                try
+                {
+                    using (Task<IEnumerable<HRSubmitSource>> retourTask = conn.QueryAsync<HRSubmitSource>(SQLQUERY_SOURCETYPE, new { Id = id.ToString() }))
+                    {
+                        await retourTask;
+                        if (retourTask.IsCompleted)
+                        {
+                            return retourTask.Result.FirstOrDefault();
+                        }
+                        else
+                        {
+                            throw new Exception("QueryAsync : Can not complete Task.");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (_logger != null)
+                    {
+                        _logger.LogError(ex.Message);
+                    }
+                    throw;
+                }
+            }
+
         }
     }
 }
