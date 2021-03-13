@@ -13,7 +13,7 @@ namespace HRBirdService
 {
     internal class HRPictureStorageService : IHRPictureStorageService
     {
-        private IPictureDataFormatter _picFormatter = null;
+        private readonly IPictureDataFormatter _picFormatter = null;
         private readonly IOptions<HRAzureBlobConfig> _config = null;
         private readonly IMapper _mapper = null;
 
@@ -85,7 +85,7 @@ namespace HRBirdService
                     throw new Exception("_picFormatter.GetPathAsync fail");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }

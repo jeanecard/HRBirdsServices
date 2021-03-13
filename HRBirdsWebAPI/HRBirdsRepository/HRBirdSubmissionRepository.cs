@@ -20,7 +20,6 @@ namespace HRBirdRepository
         private static readonly String _DBPASSWORD = "HRCountries:Password";
         private static readonly String CONNECTION_STRING_KEY = "BordersConnection";
 
-        // V_HRSubmitGeneralInformation
         public static string SQLQUERY_VERNACULAR_NAMES { get; } = " SELECT id FROM public.\"V_HRSubmitNames\" WHERE id iLIKE @Pattern ORDER BY id DESC  ";
         public static string SQLINSERT_PICTURE { get; } = "INSERT INTO public.\"HRSubmitBirdPicture\"(id, \"vernacularName\", \"ageType\", \"genderType\", \"sourceType\", credit, comment, \"thumbnailUrl\") VALUES(@id, @vernacularName, @ageType, @genderType, @sourceType, @credit, @comment, @thumbnailUrl);";
         public static string SQLDELETE_PICTURE { get; } = "DELETE FROM public.\"HRSubmitBirdPicture\" WHERE id = @Id";
@@ -32,13 +31,15 @@ namespace HRBirdRepository
         public static String SQLQUERY_AGETYPE { get; } = "SELECT * FROM public.\"V_HRSubmitAges\" WHERE \"Id\"::text = @Id";
         public static String SQLQUERY_SOURCETYPE { get; } = "SELECT * FROM public.\"V_HRSubmitSource\" WHERE \"Id\"::text = @Id";
 
-
         private HRBirdSubmissionRepository()
         {
             // Dummy for DI.
         }
-
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="log"></param>
         public HRBirdSubmissionRepository(IConfiguration config, ILogger<HRBirdSubmissionRepository> log)
         {
             _config = config;
@@ -54,35 +55,32 @@ namespace HRBirdRepository
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
-            using (var conn = new NpgsqlConnection(cxString))
+            using var conn = new NpgsqlConnection(cxString);
+
+            conn.Open();
+            try
             {
-                conn.Open();
-                try
+                using Task<IEnumerable<String>> retourTask = conn.QueryAsync<String>(SQLQUERY_VERNACULAR_NAMES, new { Pattern = "%" + pattern + "%" });
+
+                await retourTask;
+                if (retourTask.IsCompleted)
                 {
-                    using (Task<IEnumerable<String>> retourTask = conn.QueryAsync<String>(SQLQUERY_VERNACULAR_NAMES, new { Pattern = "%" + pattern + "%" }))
-                    {
-                        await retourTask;
-                        if (retourTask.IsCompleted)
-                        {
-                            return retourTask.Result;
-                        }
-                        else
-                        {
-                            throw new Exception("QueryAsync : Can not complete Task.");
-                        }
-                    }
+                    return retourTask.Result;
                 }
-                catch (Exception ex)
+                else
                 {
-                    if (_logger != null)
-                    {
-                        _logger.LogError(ex.Message);
-                    }
-                    throw;
+                    throw new Exception("QueryAsync : Can not complete Task.");
                 }
             }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                {
+                    _logger.LogError(ex.Message);
+                }
+                throw;
+            }
         }
-
 
         /// <summary>
         /// 
@@ -93,29 +91,25 @@ namespace HRBirdRepository
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
-            using (var conn = new NpgsqlConnection(cxString))
+            using var conn = new NpgsqlConnection(cxString);
+            conn.Open();
+            try
             {
-                conn.Open();
-                try
+                picture.Id = Guid.NewGuid();
+                using Task<int> retourTask = conn.ExecuteAsync(SQLINSERT_PICTURE, picture);
+                await retourTask;
+                if (!retourTask.IsCompletedSuccessfully)
                 {
-                    picture.Id = Guid.NewGuid();
-                    using (Task<int> retourTask = conn.ExecuteAsync(SQLINSERT_PICTURE, picture))
-                    {
-                        await retourTask;
-                        if (!retourTask.IsCompletedSuccessfully)
-                        {
-                            throw new Exception("ExecuteAsync : Can not complete Task.");
-                        }
-                    }
+                    throw new Exception("ExecuteAsync : Can not complete Task.");
                 }
-                catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
                 {
-                    if (_logger != null)
-                    {
-                        _logger.LogError(ex.Message);
-                    }
-                    throw;
+                    _logger.LogError(ex.Message);
                 }
+                throw;
             }
         }
         /// <summary>
@@ -127,27 +121,25 @@ namespace HRBirdRepository
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
-            using (var conn = new NpgsqlConnection(cxString))
+            using var conn = new NpgsqlConnection(cxString);
+            conn.Open();
+            try
             {
-                conn.Open();
-                try
-                {
 
-                    using var retourTask = conn.ExecuteAsync(SQLDELETE_PICTURE, new { Id = id });
-                    await retourTask;
-                    if (!retourTask.IsCompletedSuccessfully)
-                    {
-                        throw new Exception("ExecuteAsync : Can not complete Task.");
-                    }
-                }
-                catch (Exception ex)
+                using var retourTask = conn.ExecuteAsync(SQLDELETE_PICTURE, new { Id = id });
+                await retourTask;
+                if (!retourTask.IsCompletedSuccessfully)
                 {
-                    if (_logger != null)
-                    {
-                        _logger.LogError(ex.Message);
-                    }
-                    throw;
+                    throw new Exception("ExecuteAsync : Can not complete Task.");
                 }
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                {
+                    _logger.LogError(ex.Message);
+                }
+                throw;
             }
         }
 
@@ -160,34 +152,30 @@ namespace HRBirdRepository
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
-            using (var conn = new NpgsqlConnection(cxString))
+            using var conn = new NpgsqlConnection(cxString);
+            conn.Open();
+            try
             {
-                conn.Open();
-                try
+                using Task<IEnumerable<HRSubmitPictureListItem>> retourTask = conn.QueryAsync<HRSubmitPictureListItem>(SQLQUERY_IMAGES, new { VernacularName = vernacularName });
+
+                await retourTask;
+                if (retourTask.IsCompleted)
                 {
-                    using (Task<IEnumerable<HRSubmitPictureListItem>> retourTask = conn.QueryAsync<HRSubmitPictureListItem>(SQLQUERY_IMAGES, new { VernacularName = vernacularName }))
-                    {
-                        await retourTask;
-                        if (retourTask.IsCompleted)
-                        {
-                            return retourTask.Result;
-                        }
-                        else
-                        {
-                            throw new Exception("QueryAsync : Can not complete Task.");
-                        }
-                    }
+                    return retourTask.Result;
                 }
-                catch (Exception ex)
+                else
                 {
-                    if (_logger != null)
-                    {
-                        _logger.LogError(ex.Message);
-                    }
-                    throw;
+                    throw new Exception("QueryAsync : Can not complete Task.");
                 }
             }
-
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                {
+                    _logger.LogError(ex.Message);
+                }
+                throw;
+            }
         }
         /// <summary>
         /// 
@@ -207,32 +195,29 @@ namespace HRBirdRepository
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
-            using (var conn = new NpgsqlConnection(cxString))
+            using var conn = new NpgsqlConnection(cxString);
+            conn.Open();
+            try
             {
-                conn.Open();
-                try
+                using Task<IEnumerable<HRSubmitGender>> retourTask = conn.QueryAsync<HRSubmitGender>(SQLQUERY_GENDERS);
+
+                await retourTask;
+                if (retourTask.IsCompleted)
                 {
-                    using (Task<IEnumerable<HRSubmitGender>> retourTask = conn.QueryAsync<HRSubmitGender>(SQLQUERY_GENDERS))
-                    {
-                        await retourTask;
-                        if (retourTask.IsCompleted)
-                        {
-                            return retourTask.Result;
-                        }
-                        else
-                        {
-                            throw new Exception("QueryAsync : Can not complete Task.");
-                        }
-                    }
+                    return retourTask.Result;
                 }
-                catch (Exception ex)
+                else
                 {
-                    if (_logger != null)
-                    {
-                        _logger.LogError(ex.Message);
-                    }
-                    throw;
+                    throw new Exception("QueryAsync : Can not complete Task.");
                 }
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                {
+                    _logger.LogError(ex.Message);
+                }
+                throw;
             }
         }
         /// <summary>
@@ -243,32 +228,28 @@ namespace HRBirdRepository
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
-            using (var conn = new NpgsqlConnection(cxString))
+            using var conn = new NpgsqlConnection(cxString);
+            conn.Open();
+            try
             {
-                conn.Open();
-                try
+                using Task<IEnumerable<HRSubmitAge>> retourTask = conn.QueryAsync<HRSubmitAge>(SQLQUERY_TYPE_AGES);
+                await retourTask;
+                if (retourTask.IsCompleted)
                 {
-                    using (Task<IEnumerable<HRSubmitAge>> retourTask = conn.QueryAsync<HRSubmitAge>(SQLQUERY_TYPE_AGES))
-                    {
-                        await retourTask;
-                        if (retourTask.IsCompleted)
-                        {
-                            return retourTask.Result;
-                        }
-                        else
-                        {
-                            throw new Exception("QueryAsync : Can not complete Task.");
-                        }
-                    }
+                    return retourTask.Result;
                 }
-                catch (Exception ex)
+                else
                 {
-                    if (_logger != null)
-                    {
-                        _logger.LogError(ex.Message);
-                    }
-                    throw;
+                    throw new Exception("QueryAsync : Can not complete Task.");
                 }
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                {
+                    _logger.LogError(ex.Message);
+                }
+                throw;
             }
         }
         /// <summary>
@@ -279,32 +260,29 @@ namespace HRBirdRepository
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
-            using (var conn = new NpgsqlConnection(cxString))
+            using var conn = new NpgsqlConnection(cxString);
+            conn.Open();
+            try
             {
-                conn.Open();
-                try
+                using Task<IEnumerable<HRSubmitSource>> retourTask = conn.QueryAsync<HRSubmitSource>(SQLQUERY_SOURCE);
+
+                await retourTask;
+                if (retourTask.IsCompleted)
                 {
-                    using (Task<IEnumerable<HRSubmitSource>> retourTask = conn.QueryAsync<HRSubmitSource>(SQLQUERY_SOURCE))
-                    {
-                        await retourTask;
-                        if (retourTask.IsCompleted)
-                        {
-                            return retourTask.Result;
-                        }
-                        else
-                        {
-                            throw new Exception("QueryAsync : Can not complete Task.");
-                        }
-                    }
+                    return retourTask.Result;
                 }
-                catch (Exception ex)
+                else
                 {
-                    if (_logger != null)
-                    {
-                        _logger.LogError(ex.Message);
-                    }
-                    throw;
+                    throw new Exception("QueryAsync : Can not complete Task.");
                 }
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                {
+                    _logger.LogError(ex.Message);
+                }
+                throw;
             }
         }
         /// <summary>
@@ -316,32 +294,29 @@ namespace HRBirdRepository
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
-            using (var conn = new NpgsqlConnection(cxString))
+            using var conn = new NpgsqlConnection(cxString);
+            conn.Open();
+            try
             {
-                conn.Open();
-                try
+                using Task<IEnumerable<HRSubmitGender>> retourTask = conn.QueryAsync<HRSubmitGender>(SQLQUERY_GENDERTYPE, new { Id = id.ToString() });
+
+                await retourTask;
+                if (retourTask.IsCompleted)
                 {
-                    using (Task<IEnumerable<HRSubmitGender>> retourTask = conn.QueryAsync<HRSubmitGender>(SQLQUERY_GENDERTYPE, new { Id = id.ToString() }))
-                    {
-                        await retourTask;
-                        if (retourTask.IsCompleted)
-                        {
-                            return retourTask.Result.FirstOrDefault();
-                        }
-                        else
-                        {
-                            throw new Exception("QueryAsync : Can not complete Task.");
-                        }
-                    }
+                    return retourTask.Result.FirstOrDefault();
                 }
-                catch (Exception ex)
+                else
                 {
-                    if (_logger != null)
-                    {
-                        _logger.LogError(ex.Message);
-                    }
-                    throw;
+                    throw new Exception("QueryAsync : Can not complete Task.");
                 }
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                {
+                    _logger.LogError(ex.Message);
+                }
+                throw;
             }
         }
         /// <summary>
@@ -353,34 +328,30 @@ namespace HRBirdRepository
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
-            using (var conn = new NpgsqlConnection(cxString))
+            using var conn = new NpgsqlConnection(cxString);
+            conn.Open();
+            try
             {
-                conn.Open();
-                try
+                using Task<IEnumerable<HRSubmitAge>> retourTask = conn.QueryAsync<HRSubmitAge>(SQLQUERY_AGETYPE, new { Id = id.ToString() });
+
+                await retourTask;
+                if (retourTask.IsCompleted)
                 {
-                    using (Task<IEnumerable<HRSubmitAge>> retourTask = conn.QueryAsync<HRSubmitAge>(SQLQUERY_AGETYPE, new { Id = id.ToString() }))
-                    {
-                        await retourTask;
-                        if (retourTask.IsCompleted)
-                        {
-                            return retourTask.Result.FirstOrDefault();
-                        }
-                        else
-                        {
-                            throw new Exception("QueryAsync : Can not complete Task.");
-                        }
-                    }
+                    return retourTask.Result.FirstOrDefault();
                 }
-                catch (Exception ex)
+                else
                 {
-                    if (_logger != null)
-                    {
-                        _logger.LogError(ex.Message);
-                    }
-                    throw;
+                    throw new Exception("QueryAsync : Can not complete Task.");
                 }
             }
-
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                {
+                    _logger.LogError(ex.Message);
+                }
+                throw;
+            }
         }
         /// <summary>
         /// 
@@ -391,34 +362,29 @@ namespace HRBirdRepository
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
-            using (var conn = new NpgsqlConnection(cxString))
+            using var conn = new NpgsqlConnection(cxString);
+            conn.Open();
+            try
             {
-                conn.Open();
-                try
+                using Task<IEnumerable<HRSubmitSource>> retourTask = conn.QueryAsync<HRSubmitSource>(SQLQUERY_SOURCETYPE, new { Id = id.ToString() });
+                await retourTask;
+                if (retourTask.IsCompleted)
                 {
-                    using (Task<IEnumerable<HRSubmitSource>> retourTask = conn.QueryAsync<HRSubmitSource>(SQLQUERY_SOURCETYPE, new { Id = id.ToString() }))
-                    {
-                        await retourTask;
-                        if (retourTask.IsCompleted)
-                        {
-                            return retourTask.Result.FirstOrDefault();
-                        }
-                        else
-                        {
-                            throw new Exception("QueryAsync : Can not complete Task.");
-                        }
-                    }
+                    return retourTask.Result.FirstOrDefault();
                 }
-                catch (Exception ex)
+                else
                 {
-                    if (_logger != null)
-                    {
-                        _logger.LogError(ex.Message);
-                    }
-                    throw;
+                    throw new Exception("QueryAsync : Can not complete Task.");
                 }
             }
-
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                {
+                    _logger.LogError(ex.Message);
+                }
+                throw;
+            }
         }
     }
 }

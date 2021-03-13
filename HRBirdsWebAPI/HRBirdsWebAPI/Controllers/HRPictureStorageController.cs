@@ -1,13 +1,7 @@
-﻿using Azure.Storage;
-using Azure.Storage.Blobs;
-using HRBirdService.Interface;
+﻿using HRBirdService.Interface;
 using HRBirdsModelDto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -30,12 +24,12 @@ namespace HRBirdsWebAPI.Controllers
             _storageService = service;
         }
         // GET: api/<PictureStorageController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
+       
+        /// <summary>
+        /// Add a file in azure storage 
+        /// </summary>
+        /// <param name="theFile"></param>
+        /// <returns></returns>
         [HttpPost("add-picture")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -1,13 +1,10 @@
-﻿using Azure.Storage;
-using Azure.Storage.Blobs;
-using HRBirdEntity;
+﻿using HRBirdEntity;
 using HRBirdService.Interface;
 using HRBirdsModelDto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,13 +13,13 @@ using System.Threading.Tasks;
 namespace HRBordersAndCountriesWebAPI2.Controllers
 {
     /// <summary>
-    /// 
+    /// Controller to submit pictures and sounds
     /// </summary>
     [Route("api/v1.0/[controller]")]
     [ApiController]
     public class HRBirdSubmissionController : ControllerBase
     {
-        private IBirdsSubmissionService _birdsSubmissionService = null;
+        private readonly IBirdsSubmissionService _birdsSubmissionService = null;
 
         private HRBirdSubmissionController()
         {
@@ -38,7 +35,7 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
         }
 
         /// <summary>
-        /// TODO
+        /// Get matching vernacular name's beyond already submitted data and official existing ones.
         /// </summary>
         /// <param name="pattern"></param>
         /// <returns></returns>
@@ -78,7 +75,7 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
         }
 
         /// <summary>
-        /// TODO
+        /// Get all images data (thumbnailed) for a given vernacular name.
         /// </summary>
         /// <param name="pattern"></param>
         /// <returns></returns>
@@ -117,7 +114,12 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
             }
         }
 
-        [HttpPost("add-image-data")]
+        /// <summary>
+        /// Add image metat-data (not image itself uploaded via HRPictureStroageController)
+        /// </summary>
+        /// <param name="picture"></param>
+        /// <returns></returns>
+        [HttpPost("add-image-metadata")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -148,8 +150,12 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
         }
 
  
-
-        [HttpDelete("delete-image-data/{id}")]
+        /// <summary>
+        /// Delete image meta data
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpDelete("delete-image-metadata/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

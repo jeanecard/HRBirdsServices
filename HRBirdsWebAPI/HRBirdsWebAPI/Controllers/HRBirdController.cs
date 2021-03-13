@@ -5,8 +5,6 @@ using HRCommonModel;
 using HRCommonModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace HRBordersAndCountriesWebAPI2.Controllers
@@ -20,9 +18,7 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
     [ApiController]
     public class HRBirdController : ControllerBase
     {
-        private readonly ILogger<HRBirdController> _logger = null;
         private readonly IHRBirdService _birdService = null;
-        private readonly IConfiguration _config = null;
 
         private HRBirdController()
         {
@@ -35,13 +31,9 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
         /// <param name="birdService"></param>
         /// <param name="util"></param>
         /// <param name="logger"></param>
-        public HRBirdController(IConfiguration config,
-            IHRBirdService birdService,
-            ILogger<HRBirdController> logger)
+        public HRBirdController(IHRBirdService birdService)
         {
-            _config = config;
             _birdService = birdService;
-            _logger = logger;
         }
 
 
@@ -58,16 +50,14 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status416RequestedRangeNotSatisfiable)]
         [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
-        public async Task<ActionResult<PagingParameterOutModel<HRBirdMainOutput>>>  Get(
-            [FromQuery] HRBirdMainInput query, 
+        public async Task<ActionResult<PagingParameterOutModel<HRBirdMainOutput>>> Get(
+            [FromQuery] HRBirdMainInput query,
             [FromQuery] PagingParameterInModel pageModel,
-            [FromQuery]  HRSortingParamModel orderBy)
+            [FromQuery] HRSortingParamModel orderBy)
         {
-            using (var resultTask = _birdService.GetMainRecordsAsync(query, pageModel, orderBy))
-            {
-                await resultTask;
-                return resultTask.Result;
-            }
+            using var resultTask = _birdService.GetMainRecordsAsync(query, pageModel, orderBy);
+            await resultTask;
+            return resultTask.Result;
         }
     }
 }
