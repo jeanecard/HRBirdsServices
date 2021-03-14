@@ -15,7 +15,7 @@ namespace HRBirdService
     public class BirdsSubmissionService : IBirdsSubmissionService
     {
         private readonly IHRBirdRepository _birdsRepo = null;
-        private readonly  IHRBirdSubmissionRepository _birdsSubmissionrepo = null;
+        private readonly IHRBirdSubmissionRepository _birdsSubmissionrepo = null;
         private readonly IHRPictureConverterRepository _birdsPictureConverter = null;
         private readonly IMapper _mapper = null;
         private readonly IHRBirdImageCDNService _imgCDNService = null;
@@ -30,7 +30,7 @@ namespace HRBirdService
         /// <param name="bRepo"></param>
         /// <param name="bSubRepo"></param>
         public BirdsSubmissionService(
-            IHRBirdRepository bRepo, 
+            IHRBirdRepository bRepo,
             IHRBirdSubmissionRepository bSubRepo,
             IHRPictureConverterRepository picConverter,
             IHRBirdImageCDNService cdn,
@@ -55,11 +55,11 @@ namespace HRBirdService
             //1- Get from existing birds
             using var birdsTask = _birdsRepo.GetMatchingVernacularNamesAsync(pattern);
             await birdsTask;
-            if(birdsTask.IsCompletedSuccessfully)
+            if (birdsTask.IsCompletedSuccessfully)
             {
-                foreach(String iter in birdsTask.Result)
+                foreach (String iter in birdsTask.Result)
                 {
-                    if(!vernacularNames.Contains(iter))
+                    if (!vernacularNames.Contains(iter))
                     {
                         vernacularNames.Add(iter);
                     }
@@ -72,7 +72,7 @@ namespace HRBirdService
             //2- Get from birsSubmissionRepo
             using var birdsSubmissionTask = _birdsSubmissionrepo.GetMatchingVernacularNamesAsync(pattern);
             await birdsSubmissionTask;
-            if(birdsSubmissionTask.IsCompletedSuccessfully)
+            if (birdsSubmissionTask.IsCompletedSuccessfully)
             {
                 foreach (String iter in birdsSubmissionTask.Result)
                 {
@@ -98,12 +98,12 @@ namespace HRBirdService
         /// <returns></returns>
         public async Task AddPictureDataAsync(HRSubmitPictureInput picture)
         {
-            if(picture != null)
+            if (picture != null)
             {
                 //1- 
                 using var thumbnailTask = _imgCDNService.GetImageDataProcessingUrlAsync();
                 await thumbnailTask;
-                if(thumbnailTask.IsCompletedSuccessfully)
+                if (thumbnailTask.IsCompletedSuccessfully)
                 {
                     var transcoPic = _mapper.Map<HRSubmitPictureInput>(picture);
                     transcoPic.ThumbnailUrl = thumbnailTask.Result;
@@ -117,12 +117,8 @@ namespace HRBirdService
                 else
                 {
                     throw new Exception("_imgCDNService.GetImageDataProcessingUrlAsync fail.");
-
                 }
-
-
             }
-
         }
         /// <summary>
         /// TODO DAPPER
@@ -150,9 +146,9 @@ namespace HRBirdService
         {
             using Task<IEnumerable<HRSubmitGender>> getTask = _birdsSubmissionrepo.GetGenderTypesAsync();
             await getTask;
-            if(getTask.IsCompletedSuccessfully)
+            if (getTask.IsCompletedSuccessfully)
             {
-                return _mapper.Map< IEnumerable<HRSubmitGenderDto>>(getTask.Result);
+                return _mapper.Map<IEnumerable<HRSubmitGenderDto>>(getTask.Result);
             }
             throw new Exception("Error onasync call : GetGenderTypesAsync");
         }
@@ -191,15 +187,38 @@ namespace HRBirdService
         /// <returns></returns>
         public async Task DeletePictureDataAsync(Guid id)
         {
-            if(id == null || id == Guid.Empty)
+            if (id == null || id == Guid.Empty)
             {
                 throw new ArgumentNullException();
             }
             using var deleteTask = _birdsSubmissionrepo.DeletePictureAsync(id);
             await deleteTask;
-            if(!deleteTask.IsCompletedSuccessfully)
+            if (!deleteTask.IsCompletedSuccessfully)
             {
                 throw new Exception("_birdsSubmissionrepo.DeletePictureAsync fail.");
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="test"></param>
+        /// <returns></returns>
+        public async Task<HRSubmitPictureOutputDto> UpdatePictureDataAsync(HRSubmitPictureInputDto pictureInput)
+        {
+            if (pictureInput != null)
+            {
+                var transcoPic = _mapper.Map<HRSubmitPictureInput>(pictureInput);
+                using var taskPicture = _birdsSubmissionrepo.UpdatePictureAsync(transcoPic);
+                await taskPicture;
+                if (taskPicture.IsCompletedSuccessfully)
+                {
+                    return _mapper.Map<HRSubmitPictureOutputDto>(taskPicture.Result);
+                }
+                throw new Exception("_birdsPictureConverter.UpdatePictureAsync fail.");
+            }
+            else
+            {
+                return null;
             }
         }
     }

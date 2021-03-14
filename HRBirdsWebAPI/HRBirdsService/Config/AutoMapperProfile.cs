@@ -18,6 +18,7 @@ namespace HRBirdService.Config
             CreateMap<HRSubmitPictureListItemDto, HRSubmitPictureListItem>().ReverseMap();
             CreateMap<HRSubmitPictureInputDto, HRSubmitPictureInput>().ReverseMap();
             CreateMap<FileToCreateDto, FileToCreate>().ReverseMap();
+            CreateMap<HRSubmitPictureOutputDto, HRSubmitPictureOutput>().ReverseMap();
         }
     }
 }

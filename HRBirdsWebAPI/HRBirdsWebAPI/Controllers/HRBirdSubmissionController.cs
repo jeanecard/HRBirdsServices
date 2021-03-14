@@ -15,7 +15,7 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
     /// <summary>
     /// Controller to submit pictures and sounds
     /// </summary>
-    [Route("api/v1.0/[controller]")]
+    [Route("api/v1.0/HRBirdSubmission")]
     [ApiController]
     public class HRBirdSubmissionController : ControllerBase
     {

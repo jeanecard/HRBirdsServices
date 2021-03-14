@@ -22,6 +22,11 @@ namespace HRBirdRepository
 
         public static string SQLQUERY_VERNACULAR_NAMES { get; } = " SELECT id FROM public.\"V_HRSubmitNames\" WHERE id iLIKE @Pattern ORDER BY id DESC  ";
         public static string SQLINSERT_PICTURE { get; } = "INSERT INTO public.\"HRSubmitBirdPicture\"(id, \"vernacularName\", \"ageType\", \"genderType\", \"sourceType\", credit, comment, \"thumbnailUrl\") VALUES(@id, @vernacularName, @ageType, @genderType, @sourceType, @credit, @comment, @thumbnailUrl);";
+        public static string SQLUPDATE_PICTURE { get; } = "UPDATE INTO public.\"HRSubmitBirdPicture\"(id, \"vernacularName\", \"ageType\", \"genderType\", \"sourceType\", credit, comment, \"thumbnailUrl\") VALUES(@id, @vernacularName, @ageType, @genderType, @sourceType, @credit, @comment, @thumbnailUrl);";
+
+ //       UPDATE public."HRSubmitBirdPicture"
+	//SET "vernacularName"=?, "ageType"=?, "genderType"=?, "sourceType"=?, credit=?, "thumbnailUrl"=?, "fullImageUrl"=?, comment=?
+	//WHERE id =?;
         public static string SQLDELETE_PICTURE { get; } = "DELETE FROM public.\"HRSubmitBirdPicture\" WHERE id = @Id";
         public static string SQLQUERY_IMAGES { get; } = "SELECT * FROM public.\"V_HRSubmitPictureList\" WHERE \"vernacularName\" iLIKE @VernacularName ";
         public static String SQLQUERY_TYPE_AGES { get; } = "SELECT * FROM public.\"V_HRSubmitAges\"";
@@ -184,8 +189,38 @@ namespace HRBirdRepository
         /// <returns></returns>
         public async Task<HRSubmitPictureInput> UpdatePictureAsync(HRSubmitPictureInput picture)
         {
-            await Task.Delay(1);
-            return picture;
+            if(picture == null
+                || picture.Id == Guid.Empty)
+            {
+                throw new ArgumentNullException();
+            }
+
+            String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
+            cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
+            using var conn = new NpgsqlConnection(cxString);
+            conn.Open();
+            try
+            {
+                picture.Id = Guid.NewGuid();
+                using Task<int> retourTask = conn.ExecuteAsync(SQLUPDATE_PICTURE, picture);
+                await retourTask;
+                if (retourTask.IsCompletedSuccessfully)
+                {
+                    return picture;
+                } 
+                else
+                {
+                    throw new Exception("ExecuteAsync : Can not complete Task.");
+                }
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                {
+                    _logger.LogError(ex.Message);
+                }
+                throw;
+            }
         }
         /// <summary>
         /// 
