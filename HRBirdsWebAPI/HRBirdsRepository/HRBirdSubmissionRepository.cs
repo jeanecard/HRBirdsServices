@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using AutoMapper;
+using Dapper;
 using HRBirdEntity;
 using HRBirdRepository.Interface;
 using HRBirdsEntities;
@@ -16,17 +17,24 @@ namespace HRBirdRepository
     {
         private readonly ILogger<HRBirdSubmissionRepository> _logger = null;
         private readonly IConfiguration _config = null;
+        private readonly IMapper _mapper = null;
         private static readonly String _DBUSER = "HRCountries:Username";
         private static readonly String _DBPASSWORD = "HRCountries:Password";
         private static readonly String CONNECTION_STRING_KEY = "BordersConnection";
 
         public static string SQLQUERY_VERNACULAR_NAMES { get; } = " SELECT id FROM public.\"V_HRSubmitNames\" WHERE id iLIKE @Pattern ORDER BY id DESC  ";
         public static string SQLINSERT_PICTURE { get; } = "INSERT INTO public.\"HRSubmitBirdPicture\"(id, \"vernacularName\", \"ageType\", \"genderType\", \"sourceType\", credit, comment, \"thumbnailUrl\") VALUES(@id, @vernacularName, @ageType, @genderType, @sourceType, @credit, @comment, @thumbnailUrl);";
-        public static string SQLUPDATE_PICTURE { get; } = "UPDATE INTO public.\"HRSubmitBirdPicture\"(id, \"vernacularName\", \"ageType\", \"genderType\", \"sourceType\", credit, comment, \"thumbnailUrl\") VALUES(@id, @vernacularName, @ageType, @genderType, @sourceType, @credit, @comment, @thumbnailUrl);";
-
- //       UPDATE public."HRSubmitBirdPicture"
-	//SET "vernacularName"=?, "ageType"=?, "genderType"=?, "sourceType"=?, credit=?, "thumbnailUrl"=?, "fullImageUrl"=?, comment=?
-	//WHERE id =?;
+        public static string SQLUPDATE_PICTURE { get; } = "UPDATE public.\"HRSubmitBirdPicture\" SET " +
+            "\"vernacularName\"=@VernacularName, " +
+            "\"ageType\"=@AgeType, " +
+            "\"genderType\"=@GenderType, " +
+            "\"sourceType\"=@SourceType, " +
+            "\"credit\"=@Credit, " +
+            "\"thumbnailUrl\"=@ThumbnailUrl, " +
+            "\"fullImageUrl\"=@FullImageUrl, " +
+            "\"comment\"=@Comment " +
+            "WHERE " +
+            "id=@Id";
         public static string SQLDELETE_PICTURE { get; } = "DELETE FROM public.\"HRSubmitBirdPicture\" WHERE id = @Id";
         public static string SQLQUERY_IMAGES { get; } = "SELECT * FROM public.\"V_HRSubmitPictureList\" WHERE \"vernacularName\" iLIKE @VernacularName ";
         public static String SQLQUERY_TYPE_AGES { get; } = "SELECT * FROM public.\"V_HRSubmitAges\"";
@@ -45,10 +53,14 @@ namespace HRBirdRepository
         /// </summary>
         /// <param name="config"></param>
         /// <param name="log"></param>
-        public HRBirdSubmissionRepository(IConfiguration config, ILogger<HRBirdSubmissionRepository> log)
+        public HRBirdSubmissionRepository(
+            IConfiguration config, 
+            ILogger<HRBirdSubmissionRepository> log,
+            IMapper mapper)
         {
             _config = config;
             _logger = log;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -92,7 +104,7 @@ namespace HRBirdRepository
         /// </summary>
         /// <param name="picture"></param>
         /// <returns></returns>
-        public async Task AddPictureAsync(HRSubmitPictureInput picture)
+        public async Task<HRSubmitPictureOutput> AddPictureAsync(HRSubmitPictureInput picture)
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
@@ -103,8 +115,12 @@ namespace HRBirdRepository
                 picture.Id = Guid.NewGuid();
                 using Task<int> retourTask = conn.ExecuteAsync(SQLINSERT_PICTURE, picture);
                 await retourTask;
-                if (!retourTask.IsCompletedSuccessfully)
+                if (retourTask.IsCompletedSuccessfully)
                 {
+                    return _mapper.Map<HRSubmitPictureOutput>(picture); 
+                }
+                else
+                { 
                     throw new Exception("ExecuteAsync : Can not complete Task.");
                 }
             }
@@ -190,7 +206,10 @@ namespace HRBirdRepository
         public async Task<HRSubmitPictureInput> UpdatePictureAsync(HRSubmitPictureInput picture)
         {
             if(picture == null
-                || picture.Id == Guid.Empty)
+                || picture.Id == Guid.Empty
+                || picture.AgeType == Guid.Empty
+                || picture.GenderType == Guid.Empty
+                || picture.SourceType == Guid.Empty)
             {
                 throw new ArgumentNullException();
             }
@@ -201,7 +220,6 @@ namespace HRBirdRepository
             conn.Open();
             try
             {
-                picture.Id = Guid.NewGuid();
                 using Task<int> retourTask = conn.ExecuteAsync(SQLUPDATE_PICTURE, picture);
                 await retourTask;
                 if (retourTask.IsCompletedSuccessfully)

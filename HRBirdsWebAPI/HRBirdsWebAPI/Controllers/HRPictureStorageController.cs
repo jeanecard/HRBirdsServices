@@ -62,9 +62,12 @@ namespace HRBirdsWebAPI.Controllers
                     pictureToSubmit.Credit = theFile.SubmittedPicture?.Credit;
                     pictureToSubmit.Comment = theFile.SubmittedPicture?.Comment;
                     pictureToSubmit.AgeType = theFile.SubmittedPicture?.AgeType;
+                    pictureToSubmit.ThumbnailUrl = theFile.SubmittedPicture?.ThumbnailUrl;
+                    pictureToSubmit.FullImageUrl = uploadTask.Result;
 
                     using var subTask = _birdsSubmissionService.UpdatePictureDataAsync(pictureToSubmit);
-                    if(subTask.IsCompletedSuccessfully)
+                    await subTask;
+                    if (subTask.IsCompletedSuccessfully)
                     {
                         return Ok(subTask.Result);
                     }

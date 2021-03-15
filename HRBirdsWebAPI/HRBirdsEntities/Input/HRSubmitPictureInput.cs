@@ -14,5 +14,6 @@ namespace HRBirdEntity
         public String Credit { get; set; }
         public String Comment { get; set; }
         public String ThumbnailUrl { get; set; }
+        public String FullImageUrl { get; set; }
     }
 }

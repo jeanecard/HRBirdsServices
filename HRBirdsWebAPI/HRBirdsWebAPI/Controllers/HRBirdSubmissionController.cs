@@ -124,7 +124,7 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 
-        public async Task<ActionResult> Post([FromBody] HRSubmitPictureInput picture)
+        public async Task<ActionResult<HRSubmitPictureOutputDto>> Post([FromBody] HRSubmitPictureInputDto picture)
         {
             if (picture == null)
             {
@@ -136,7 +136,7 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
                 await taskResult;
                 if (taskResult.IsCompletedSuccessfully)
                 {
-                    return Ok();
+                    return Ok(taskResult.Result);
                 }
                 else
                 {

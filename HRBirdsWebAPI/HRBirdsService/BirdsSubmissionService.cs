@@ -96,7 +96,7 @@ namespace HRBirdService
         /// </summary>
         /// <param name="picture"></param>
         /// <returns></returns>
-        public async Task AddPictureDataAsync(HRSubmitPictureInput picture)
+        public async Task<HRSubmitPictureOutputDto> AddPictureDataAsync(HRSubmitPictureInputDto picture)
         {
             if (picture != null)
             {
@@ -109,8 +109,12 @@ namespace HRBirdService
                     transcoPic.ThumbnailUrl = thumbnailTask.Result;
                     using var taskPicture = _birdsSubmissionrepo.AddPictureAsync(transcoPic);
                     await taskPicture;
-                    if (!taskPicture.IsCompletedSuccessfully)
+                    if (taskPicture.IsCompletedSuccessfully)
                     {
+                        return _mapper.Map<HRSubmitPictureOutputDto>(taskPicture.Result);
+                    }
+                    else
+                    { 
                         throw new Exception("_birdsPictureConverter.AddPictureAsync fail.");
                     }
                 }
@@ -119,6 +123,7 @@ namespace HRBirdService
                     throw new Exception("_imgCDNService.GetImageDataProcessingUrlAsync fail.");
                 }
             }
+            return null;
         }
         /// <summary>
         /// TODO DAPPER
