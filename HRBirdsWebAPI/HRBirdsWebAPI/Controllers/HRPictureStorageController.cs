@@ -37,7 +37,7 @@ namespace HRBirdsWebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Post([FromBody] FileToCreateDto theFile)
+        public async Task<ActionResult<HRSubmitPictureOutputDto>> Post([FromBody] FileToCreateDto theFile)
         {
             if(theFile == null 
                 || theFile.SubmittedPicture == null
