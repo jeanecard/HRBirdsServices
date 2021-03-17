@@ -149,7 +149,43 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
             }
         }
 
- 
+
+        /// <summary>
+        /// Update image metat-data (not image itself uploaded via HRPictureStroageController)
+        /// </summary>
+        /// <param name="picture"></param>
+        /// <returns></returns>
+        [HttpPut("update-image-metadata")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
+        public async Task<ActionResult<HRSubmitPictureOutputDto>> Put([FromBody] HRSubmitPictureInputDto picture)
+        {
+            if (picture == null)
+            {
+                return new StatusCodeResult(StatusCodes.Status400BadRequest);
+            }
+            try
+            {
+                using var taskResult = _birdsSubmissionService.UpdatePictureDataAsync(picture);
+                await taskResult;
+                if (taskResult.IsCompletedSuccessfully)
+                {
+                    return Ok(taskResult.Result);
+                }
+                else
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+
         /// <summary>
         /// Delete image meta data
         /// </summary>
