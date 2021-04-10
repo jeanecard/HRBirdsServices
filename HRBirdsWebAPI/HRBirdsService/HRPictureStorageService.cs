@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Azure.Storage;
 using Azure.Storage.Blobs;
+using HRBirdRepository.Interface;
 using HRBirdsEntities;
 using HRBirdService.Interface;
 using HRBirdsModelDto;
@@ -16,6 +17,7 @@ namespace HRBirdService
         private readonly IPictureDataFormatter _picFormatter = null;
         private readonly IOptions<HRAzureBlobConfig> _config = null;
         private readonly IMapper _mapper = null;
+        private readonly IHRBirdSubmissionRepository _repo = null;
 
         private HRPictureStorageService()
         {
@@ -24,12 +26,14 @@ namespace HRBirdService
 
         public HRPictureStorageService(
             IPictureDataFormatter formatter,
+            IHRBirdSubmissionRepository repo,
             IOptions<HRAzureBlobConfig> config,
             IMapper mapper)
         {
             _picFormatter = formatter;
             _config = config;
             _mapper = mapper;
+            _repo = repo;
         }
         /// <summary>
         /// Very first version, no segmentation management.
@@ -89,6 +93,17 @@ namespace HRBirdService
             {
                 throw;
             }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fullImageURL"></param>
+        /// <param name="thumbnail"></param>
+        /// <returns></returns>
+        public async Task UpdateThumbnailAsync(string fullImageURL, string thumbnail)
+        {
+            using var updateTask = _repo.UpdateThumbnailAsync(fullImageURL, thumbnail);
+            await updateTask;
         }
     }
 }

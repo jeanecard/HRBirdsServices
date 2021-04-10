@@ -2,6 +2,7 @@
 using HRBirdsModelDto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -72,6 +73,37 @@ namespace HRBirdsWebAPI.Controllers
                         return Ok(subTask.Result);
                     }
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
+                else
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+        [HttpPut("update-thumbnail")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> PutThumbnail([FromBody] PutThumbnailInputDto data)
+        {
+            if(data == null
+                || String.IsNullOrEmpty( data.FullImageURL) )
+            {
+                return new StatusCodeResult(StatusCodes.Status400BadRequest);
+            }
+            try
+            {
+                using var updateTask = _storageService.UpdateThumbnailAsync(data.FullImageURL, data.ThumbnailImageURL);
+                await updateTask;
+                if(updateTask.IsCompletedSuccessfully)
+                {
+                    //SIGNALR GO !!!!
+                    return Ok();
                 }
                 else
                 {

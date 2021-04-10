@@ -14,6 +14,7 @@ namespace HRBirdRepository.Interface
         Task<IEnumerable<HRSubmitPictureListItem>> GetSubmittedPicturesAsync(String vernacularName);
         Task<HRSubmitPictureOutput> AddPictureAsync(HRSubmitPictureInput picture);
         Task<HRSubmitPictureInput> UpdatePictureAsync(HRSubmitPictureInput picture);
+        Task<IEnumerable<Guid>> UpdateThumbnailAsync(String fullImagePath, String thumbnailPath);
         Task DeletePictureAsync(Guid id);
         Task<IEnumerable<HRSubmitGender>> GetGenderTypesAsync();
         Task<IEnumerable<HRSubmitAge>> GetAgeTypesAsync();

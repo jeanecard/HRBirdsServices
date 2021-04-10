@@ -35,6 +35,11 @@ namespace HRBirdRepository
             "\"comment\"=@Comment " +
             "WHERE " +
             "id=@Id";
+        public static string SQLUPDATE_THUMBNAIL { get; } = "UPDATE public.\"HRSubmitBirdPicture\" SET " +
+            "\"thumbnailUrl\"=@ThumbnailUrl " +
+            "WHERE " +
+            "\"HRSubmitBirdPicture\".\"fullImageUrl\"=@FullImageUrl";
+        //UPDATE public."HRSubmitBirdPicture" SET "thumbnailUrl"='kk' WHERE "HRSubmitBirdPicture"."fullImageUrl" = 'http
         public static string SQLDELETE_PICTURE { get; } = "DELETE FROM public.\"HRSubmitBirdPicture\" WHERE id = @Id";
         public static string SQLQUERY_IMAGES { get; } = "SELECT * FROM public.\"V_HRSubmitPictureList\" WHERE \"vernacularName\" iLIKE @VernacularName ";
         public static String SQLQUERY_TYPE_AGES { get; } = "SELECT * FROM public.\"V_HRSubmitAges\"";
@@ -428,6 +433,42 @@ namespace HRBirdRepository
                 else
                 {
                     throw new Exception("QueryAsync : Can not complete Task.");
+                }
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                {
+                    _logger.LogError(ex.Message);
+                }
+                throw;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fullImagePath"></param>
+        /// <param name="thumbnailPath"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Guid>> UpdateThumbnailAsync(string fullImagePath, string thumbnailPath)
+        {
+            String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
+            cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
+            using var conn = new NpgsqlConnection(cxString);
+            conn.Open();
+            try
+            {
+                using Task<int> retourTask = conn.ExecuteAsync(
+                    SQLUPDATE_THUMBNAIL, 
+                    new { ThumbnailUrl = thumbnailPath, FullImageUrl = fullImagePath });
+                await retourTask;
+                if (retourTask.IsCompletedSuccessfully)
+                {
+                    return new List<Guid>(); //TODO
+                }
+                else
+                {
+                    throw new Exception("ExecuteAsync : Can not complete Task.");
                 }
             }
             catch (Exception ex)
