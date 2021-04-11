@@ -4,7 +4,9 @@ using Azure.Storage.Blobs;
 using HRBirdRepository.Interface;
 using HRBirdsEntities;
 using HRBirdService.Interface;
+using HRBirdServices;
 using HRBirdsModelDto;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using System;
 using System.IO;
@@ -18,6 +20,7 @@ namespace HRBirdService
         private readonly IOptions<HRAzureBlobConfig> _config = null;
         private readonly IMapper _mapper = null;
         private readonly IHRBirdSubmissionRepository _repo = null;
+        private IHubContext<HRBirdPictureSubmissionHub> _informHub;
 
         private HRPictureStorageService()
         {
@@ -25,11 +28,13 @@ namespace HRBirdService
         }
 
         public HRPictureStorageService(
+            IHubContext<HRBirdPictureSubmissionHub> hubContext,
             IPictureDataFormatter formatter,
             IHRBirdSubmissionRepository repo,
             IOptions<HRAzureBlobConfig> config,
             IMapper mapper)
         {
+            _informHub = hubContext;
             _picFormatter = formatter;
             _config = config;
             _mapper = mapper;
@@ -109,6 +114,8 @@ namespace HRBirdService
             {
                 //2- GetAll updated image's Id
                 //3- Foreach images updated, trigger signalR imageupdate
+                using var notifyTask = _informHub.Clients.All.SendAsync(HRBirdPictureSubmissionHub.CLIENT_NOTIFICATION_KEY, "le GUID qui va bien");
+                await notifyTask;
             }
         }
     }

@@ -5,11 +5,11 @@ namespace HRBirdServices
 {
     public class HRBirdPictureSubmissionHub : Hub
     {
-        public Task BroadcastMessage(string name, string message) =>
-           Clients.All.SendAsync("broadcastMessage", name, message);
-
-        public Task Echo(string name, string message) =>
-            Clients.Client(Context.ConnectionId)
-                   .SendAsync("echo", name, $"{message} (echo from server)");
+        public static readonly string CLIENT_NOTIFICATION_KEY = "Message";
+        public async override Task OnConnectedAsync()
+        {
+            await base.OnConnectedAsync();
+            await Clients.Caller.SendAsync(CLIENT_NOTIFICATION_KEY, "Connected successfully!");
+        }
     }
 }

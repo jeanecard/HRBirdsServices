@@ -4,16 +4,10 @@ using HRBirdService.Config;
 using HRBirdServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace HRBirdsWebAPI
 {
@@ -21,8 +15,6 @@ namespace HRBirdsWebAPI
     {
         private static readonly String _VERSION_FOR_SWAGGER_DISLPAY = "Version 1";
         private static readonly String _NAME_FOR_SWAGGER_DISLPAY = "HR Birds Services";
-        private static readonly String _ENV_SIGNALR_CX_STRING = "SIGNALR_SUBMIT_IMAGE_CX_STRING";
-        // private readonly string _ALLOW_SPECIFIC_ORIGIN = "_myAllowSpecificOrigins";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -52,8 +44,18 @@ namespace HRBirdsWebAPI
             services.Configure<HRAzureBlobConfig>(Configuration.GetSection("HRAzureBlob"));
 
             //Add azure signalR Reference
-            services.AddSignalR().AddAzureSignalR(Environment.GetEnvironmentVariable(_ENV_SIGNALR_CX_STRING));
+            services.AddSignalR(); 
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder
+                    .AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials()
+                    .SetIsOriginAllowed((hosts) => true)); //allow anything
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -68,11 +70,7 @@ namespace HRBirdsWebAPI
             app.UseRouting();
             app.UseAuthorization();
 
-            app.UseCors(builder => builder
-                .AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader());
-
+            app.UseCors("CorsPolicy");
             app.UseOpenApi();
             app.UseSwaggerUi3();
             app.UseFileServer();
@@ -80,10 +78,8 @@ namespace HRBirdsWebAPI
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<HRBirdPictureSubmissionHub>("/HRBirdPictureSubmissionHub");
+                endpoints.MapHub<HRBirdPictureSubmissionHub>("/HRBirdPictureSubmission");
             });
-
-
         }
     }
 }
