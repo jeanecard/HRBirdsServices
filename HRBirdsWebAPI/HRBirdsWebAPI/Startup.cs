@@ -1,6 +1,7 @@
 using HRBirdRepository;
 using HRBirdsEntities;
 using HRBirdService.Config;
+using HRBirdServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -20,6 +21,7 @@ namespace HRBirdsWebAPI
     {
         private static readonly String _VERSION_FOR_SWAGGER_DISLPAY = "Version 1";
         private static readonly String _NAME_FOR_SWAGGER_DISLPAY = "HR Birds Services";
+        private static readonly String _ENV_SIGNALR_CX_STRING = "SIGNALR_SUBMIT_IMAGE_CX_STRING";
         // private readonly string _ALLOW_SPECIFIC_ORIGIN = "_myAllowSpecificOrigins";
         public Startup(IConfiguration configuration)
         {
@@ -49,6 +51,9 @@ namespace HRBirdsWebAPI
             // Add our Config object so it can be injected
             services.Configure<HRAzureBlobConfig>(Configuration.GetSection("HRAzureBlob"));
 
+            //Add azure signalR Reference
+            services.AddSignalR().AddAzureSignalR(Environment.GetEnvironmentVariable(_ENV_SIGNALR_CX_STRING));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -70,10 +75,15 @@ namespace HRBirdsWebAPI
 
             app.UseOpenApi();
             app.UseSwaggerUi3();
+            app.UseFileServer();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<HRBirdPictureSubmissionHub>("/HRBirdPictureSubmissionHub");
             });
+
+
         }
     }
 }

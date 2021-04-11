@@ -102,8 +102,14 @@ namespace HRBirdService
         /// <returns></returns>
         public async Task UpdateThumbnailAsync(string fullImageURL, string thumbnail)
         {
+            //1- Updatethumbnails in repo
             using var updateTask = _repo.UpdateThumbnailAsync(fullImageURL, thumbnail);
             await updateTask;
+            if(updateTask.IsCompletedSuccessfully)
+            {
+                //2- GetAll updated image's Id
+                //3- Foreach images updated, trigger signalR imageupdate
+            }
         }
     }
 }
