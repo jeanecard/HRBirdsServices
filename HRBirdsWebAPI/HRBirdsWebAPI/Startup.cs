@@ -50,7 +50,7 @@ namespace HRBirdsWebAPI
             {
                 options.AddPolicy("CorsPolicy",
                     builder => builder
-                    .AllowAnyOrigin()
+                    //.AllowAnyOrigin()
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials()
@@ -65,12 +65,12 @@ namespace HRBirdsWebAPI
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            app.UseCors("CorsPolicy");
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
 
-            app.UseCors("CorsPolicy");
+
             app.UseOpenApi();
             app.UseSwaggerUi3();
             app.UseFileServer();
