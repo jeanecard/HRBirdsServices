@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HRBirdService", "HRBirdsSer
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HRBirdsEntities", "HRBirdsEntities\HRBirdsEntities.csproj", "{0510634F-A7EB-43D2-A8DB-4E1BDC7B0335}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRBirdsSignalR", "HRBirdsSignalR\HRBirdsSignalR.csproj", "{742B2B35-2E56-4432-8F8F-18B3BEEBCFF7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{0510634F-A7EB-43D2-A8DB-4E1BDC7B0335}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0510634F-A7EB-43D2-A8DB-4E1BDC7B0335}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0510634F-A7EB-43D2-A8DB-4E1BDC7B0335}.Release|Any CPU.Build.0 = Release|Any CPU
+		{742B2B35-2E56-4432-8F8F-18B3BEEBCFF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{742B2B35-2E56-4432-8F8F-18B3BEEBCFF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{742B2B35-2E56-4432-8F8F-18B3BEEBCFF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{742B2B35-2E56-4432-8F8F-18B3BEEBCFF7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
