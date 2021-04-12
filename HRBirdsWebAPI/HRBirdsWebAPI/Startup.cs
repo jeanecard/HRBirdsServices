@@ -1,7 +1,6 @@
 using HRBirdRepository;
 using HRBirdsEntities;
 using HRBirdService.Config;
-using HRBirdServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -43,8 +42,7 @@ namespace HRBirdsWebAPI
             // Add our Config object so it can be injected
             services.Configure<HRAzureBlobConfig>(Configuration.GetSection("HRAzureBlob"));
 
-            //Add azure signalR Reference
-            services.AddSignalR(); 
+
 
             services.AddCors(options =>
             {
@@ -78,7 +76,6 @@ namespace HRBirdsWebAPI
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<HRBirdPictureSubmissionHub>("/HRBirdPictureSubmission");
             });
         }
     }
