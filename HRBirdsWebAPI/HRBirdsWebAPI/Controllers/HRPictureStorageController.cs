@@ -84,7 +84,11 @@ namespace HRBirdsWebAPI.Controllers
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
             }
         }
-
+        /// <summary>
+        /// 1- Update all images with thumbnail
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
         [HttpPut("update-thumbnail")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

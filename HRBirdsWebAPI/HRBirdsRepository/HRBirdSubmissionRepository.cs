@@ -23,6 +23,8 @@ namespace HRBirdRepository
         private static readonly String CONNECTION_STRING_KEY = "BordersConnection";
 
         public static string SQLQUERY_VERNACULAR_NAMES { get; } = " SELECT id FROM public.\"V_HRSubmitNames\" WHERE id iLIKE @Pattern ORDER BY id DESC  ";
+        public static string SQLQUERY_FULLIMAGE { get; } = "SELECT * FROM public.\"V_HRSubmitPictureList\"" + "WHERE " + "\"HRSubmitBirdPicture\".\"fullImageUrl\"=@FullImageUrl";
+
         public static string SQLINSERT_PICTURE { get; } = "INSERT INTO public.\"HRSubmitBirdPicture\"(id, \"vernacularName\", \"ageType\", \"genderType\", \"sourceType\", credit, comment, \"thumbnailUrl\") VALUES(@id, @vernacularName, @ageType, @genderType, @sourceType, @credit, @comment, @thumbnailUrl);";
         public static string SQLUPDATE_PICTURE { get; } = "UPDATE public.\"HRSubmitBirdPicture\" SET " +
             "\"vernacularName\"=@VernacularName, " +
@@ -450,7 +452,7 @@ namespace HRBirdRepository
         /// <param name="fullImagePath"></param>
         /// <param name="thumbnailPath"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<Guid>> UpdateThumbnailAsync(string fullImagePath, string thumbnailPath)
+        public async Task UpdateThumbnailAsync(string fullImagePath, string thumbnailPath)
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
@@ -462,9 +464,38 @@ namespace HRBirdRepository
                     SQLUPDATE_THUMBNAIL, 
                     new { ThumbnailUrl = thumbnailPath, FullImageUrl = fullImagePath });
                 await retourTask;
+                if (!retourTask.IsCompletedSuccessfully)
+                {
+                    throw new Exception("ExecuteAsync : Can not complete Task.");
+                }
+            }
+            catch (Exception ex)
+            {
+                if (_logger != null)
+                {
+                    _logger.LogError(ex.Message);
+                }
+                throw;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fullImageUrl"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<HRSubmitPictureListItem>> GetSubmittedPicturesByFullImageUrlAsync(string fullImageUrl)
+        {
+            String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
+            cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
+            using var conn = new NpgsqlConnection(cxString);
+            conn.Open();
+            try
+            {
+                using Task<IEnumerable<HRSubmitPictureListItem>> retourTask = conn.QueryAsync<HRSubmitPictureListItem>(SQLQUERY_FULLIMAGE, new { FullImageUrl = fullImageUrl });
+                await retourTask;
                 if (retourTask.IsCompletedSuccessfully)
                 {
-                    return new List<Guid>(); //TODO
+                    return retourTask.Result;
                 }
                 else
                 {

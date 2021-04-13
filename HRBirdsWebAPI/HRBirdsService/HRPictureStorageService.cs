@@ -18,6 +18,7 @@ namespace HRBirdService
         private readonly IOptions<HRAzureBlobConfig> _config = null;
         private readonly IMapper _mapper = null;
         private readonly IHRBirdSubmissionRepository _repo = null;
+        private readonly IHRImageNotifySignalR _notifier = null;
 
         private HRPictureStorageService()
         {
@@ -28,6 +29,7 @@ namespace HRBirdService
             IPictureDataFormatter formatter,
             IHRBirdSubmissionRepository repo,
             IOptions<HRAzureBlobConfig> config,
+            IHRImageNotifySignalR notifier,
             IMapper mapper)
         {
             _picFormatter = formatter;
@@ -107,9 +109,33 @@ namespace HRBirdService
             await updateTask;
             if(updateTask.IsCompletedSuccessfully)
             {
-                //2- GetAll updated image's Id
-                //3- Foreach images updated, trigger signalR imageupdate
-              //By passing by signalRWebAPI
+                //2- GetAll updated images
+                using var getListTask = _repo.GetSubmittedPicturesByFullImageUrlAsync(fullImageURL);
+                await getListTask;
+                if(getListTask.IsCompletedSuccessfully)
+                {
+                    //TODO use automappper
+                    foreach(HRSubmitPictureListItem iter in getListTask.Result)
+                    {
+                        var message = new HRBirdsSignalRNotificationDto()
+                        {
+                            Id = iter.Id,
+                            Url = thumbnail,
+                            VernacularName = iter.VernacularName
+                        };
+                        //For each updated items, send notification
+                        using var notifyTask = _notifier.NotifySignalRRestAsync(message, HRImageNotifySignalR.THUMBNAIL_REST_END_POINT);
+                        await notifyTask;
+                    }
+                }
+                else
+                {
+                    throw new Exception("GetSubmittedPicturesByFullImageUrlAsync failed.");
+                }
+            }
+            else
+            {
+                throw new Exception("UpdateThumbnailAsync failed.");
             }
         }
     }

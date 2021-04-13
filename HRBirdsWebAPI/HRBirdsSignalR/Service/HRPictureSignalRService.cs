@@ -1,13 +1,15 @@
 ﻿using HRBirdsModelDto;
 using HRBirdsSignalR.Interface;
 using Microsoft.AspNetCore.SignalR;
+using System;
 using System.Threading.Tasks;
 
 namespace HRBirdsSignalR.Service
 {
     public class HRPictureSignalRService : IHRPictureSignalRService
     {
-        private IHubContext<HRBirdPictureSubmissionHub> _informHub;
+        private IHubContext<HRBirdPictureSubmissionHub> _informHub = null;
+
 
         private HRPictureSignalRService()
         {
@@ -26,7 +28,7 @@ namespace HRBirdsSignalR.Service
         {
             if(data != null)
             {
-                using var notifyTask = _informHub.Clients.All.SendAsync(HRBirdPictureSubmissionHub.CLIENT_NOTIFICATION_KEY, "le GUID qui va bien");
+                using var notifyTask = _informHub.Clients.All.SendAsync(HRBirdPictureSubmissionHub.CLIENT_NEW_IMAGE_NOTIFICATION_KEY, data.VernacularName, data.Id, data.Url);
                 await notifyTask;
             }
         }
@@ -39,9 +41,10 @@ namespace HRBirdsSignalR.Service
         {
             if (data != null)
             {
-                using var notifyTask = _informHub.Clients.All.SendAsync(HRBirdPictureSubmissionHub.CLIENT_NOTIFICATION_KEY, "le GUID qui va bien");
+                using var notifyTask = _informHub.Clients.All.SendAsync(HRBirdPictureSubmissionHub.CLIENT_UPDATE_THUMBNAIL_NOTIFICATION_KEY, data.VernacularName, data.Id, data.Url);
                 await notifyTask;
             }
         }
+
     }
 }
