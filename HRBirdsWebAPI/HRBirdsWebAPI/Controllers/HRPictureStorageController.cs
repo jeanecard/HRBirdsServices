@@ -21,7 +21,9 @@ namespace HRBirdsWebAPI.Controllers
             // Dummy for DI.
         }
 
-        public HRPictureStorageController(IHRPictureStorageService service, IBirdsSubmissionService subService)
+        public HRPictureStorageController(
+            IHRPictureStorageService service, 
+            IBirdsSubmissionService subService)
         {
             _storageService = service;
             _birdsSubmissionService = subService;
@@ -96,17 +98,16 @@ namespace HRBirdsWebAPI.Controllers
         public async Task<ActionResult> PutThumbnail([FromBody] PutThumbnailInputDto data)
         {
             if(data == null
-                || String.IsNullOrEmpty( data.FullImageURL) )
+                || String.IsNullOrEmpty( data.Id) )
             {
                 return new StatusCodeResult(StatusCodes.Status400BadRequest);
             }
             try
             {
-                using var updateTask = _storageService.UpdateThumbnailAsync(data.FullImageURL, data.ThumbnailImageURL);
+                using var updateTask = _storageService.UpdateThumbnailAsync(data.Id, data.ThumbnailImageURL);
                 await updateTask;
                 if(updateTask.IsCompletedSuccessfully)
                 {
-                    //SIGNALR GO !!!!
                     return Ok();
                 }
                 else

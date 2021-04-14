@@ -114,6 +114,39 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
             }
         }
 
+        [HttpGet("get-image/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<HRSubmitPictureListItemDto>> GetImageAsync([FromRoute] string id)
+        {
+            if (String.IsNullOrEmpty(id))
+            {
+                return new StatusCodeResult(StatusCodes.Status400BadRequest);
+            }
+            try
+            {
+                using var taskResult = _birdsSubmissionService.GetSubmittedPictureAsync(id);
+                await taskResult;
+                if (taskResult.IsCompletedSuccessfully)
+                {
+                    return Ok(taskResult.Result);
+                }
+                else
+                {
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
+            }
+            catch
+            {
+                return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+            }
+        }
+
+
+
+
         /// <summary>
         /// Add image metat-data (not image itself uploaded via HRPictureStroageController)
         /// </summary>

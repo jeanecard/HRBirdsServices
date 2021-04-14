@@ -19,7 +19,6 @@ namespace HRBirdService
         private readonly IHRPictureConverterRepository _birdsPictureConverter = null;
         private readonly IMapper _mapper = null;
         private readonly IHRBirdImageCDNService _imgCDNService = null;
-        private readonly IHRImageNotifySignalR _notifier = null;
 
         private BirdsSubmissionService()
         {
@@ -35,7 +34,6 @@ namespace HRBirdService
             IHRBirdSubmissionRepository bSubRepo,
             IHRPictureConverterRepository picConverter,
             IHRBirdImageCDNService cdn,
-            IHRImageNotifySignalR notifier,
             IMapper mapper)
         {
             _birdsRepo = bRepo;
@@ -43,7 +41,6 @@ namespace HRBirdService
             _birdsPictureConverter = picConverter;
             _mapper = mapper;
             _imgCDNService = cdn;
-            _notifier = notifier;
 
         }
 
@@ -95,8 +92,7 @@ namespace HRBirdService
         }
         /// <summary>
         /// 1- Submit picture to image Repository
-        /// 2- Notify SignalR subscribers
-        /// 3- Return pictures
+        /// 2- Return pictures
         /// </summary>
         /// <param name="picture"></param>
         /// <returns></returns>
@@ -115,19 +111,11 @@ namespace HRBirdService
                     await taskPicture;
                     if (taskPicture.IsCompletedSuccessfully)
                     {
-                        //2-
-                        using var notifyResult = _notifier.NotifySignalRRestAsync(
-                            new HRBirdsSignalRNotificationDto() 
-                            { 
-                                Id = taskPicture.Result.Id, 
-                                Url = taskPicture.Result.FullImageUrl, 
-                                VernacularName = taskPicture.Result.VernacularName 
-                            }, 
-                            HRImageNotifySignalR.NEW_IMAGE_REST_END_POINT_ENV_KEY
-                            );
-                        await notifyResult;
-                        //3-
-                        return _mapper.Map<HRSubmitPictureOutputDto>(taskPicture.Result);
+
+                   
+                            //2-
+                            return _mapper.Map<HRSubmitPictureOutputDto>(taskPicture.Result);
+
                     }
                     else
                     { 
@@ -159,6 +147,21 @@ namespace HRBirdService
                 throw new Exception("_birdsSubmissionrepo.GetSubmittedPicturesAsync error");
             }
         }
+
+        public async Task<HRSubmitPictureListItemDto> GetSubmittedPictureAsync(String id)
+        {
+            using var birdSubmissionTask = _birdsSubmissionrepo.GetSubmittedPicturesByID(id);
+            await birdSubmissionTask;
+            if (birdSubmissionTask.IsCompletedSuccessfully)
+            {
+                return _mapper.Map<HRSubmitPictureListItemDto>(birdSubmissionTask.Result);
+            }
+            else
+            {
+                throw new Exception("_birdsSubmissionrepo.GetSubmittedPictureAsync error");
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>

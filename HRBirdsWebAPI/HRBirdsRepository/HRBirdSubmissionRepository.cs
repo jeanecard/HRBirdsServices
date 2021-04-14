@@ -23,7 +23,7 @@ namespace HRBirdRepository
         private static readonly String CONNECTION_STRING_KEY = "BordersConnection";
 
         public static string SQLQUERY_VERNACULAR_NAMES { get; } = " SELECT id FROM public.\"V_HRSubmitNames\" WHERE id iLIKE @Pattern ORDER BY id DESC  ";
-        public static string SQLQUERY_FULLIMAGE { get; } = "SELECT * FROM public.\"V_HRSubmitPictureList\"" + "WHERE " + "\"HRSubmitBirdPicture\".\"fullImageUrl\"=@FullImageUrl";
+        public static string SQLQUERY_BYID { get; } = "SELECT * FROM public.\"V_HRSubmitPictureList\"" + " WHERE " + "\"V_HRSubmitPictureList\".\"id\"=@Id";
 
         public static string SQLINSERT_PICTURE { get; } = "INSERT INTO public.\"HRSubmitBirdPicture\"(id, \"vernacularName\", \"ageType\", \"genderType\", \"sourceType\", credit, comment, \"thumbnailUrl\") VALUES(@id, @vernacularName, @ageType, @genderType, @sourceType, @credit, @comment, @thumbnailUrl);";
         public static string SQLUPDATE_PICTURE { get; } = "UPDATE public.\"HRSubmitBirdPicture\" SET " +
@@ -40,7 +40,7 @@ namespace HRBirdRepository
         public static string SQLUPDATE_THUMBNAIL { get; } = "UPDATE public.\"HRSubmitBirdPicture\" SET " +
             "\"thumbnailUrl\"=@ThumbnailUrl " +
             "WHERE " +
-            "\"HRSubmitBirdPicture\".\"fullImageUrl\"=@FullImageUrl";
+            "\"HRSubmitBirdPicture\".\"id\"=@Id";
         //UPDATE public."HRSubmitBirdPicture" SET "thumbnailUrl"='kk' WHERE "HRSubmitBirdPicture"."fullImageUrl" = 'http
         public static string SQLDELETE_PICTURE { get; } = "DELETE FROM public.\"HRSubmitBirdPicture\" WHERE id = @Id";
         public static string SQLQUERY_IMAGES { get; } = "SELECT * FROM public.\"V_HRSubmitPictureList\" WHERE \"vernacularName\" iLIKE @VernacularName ";
@@ -452,7 +452,7 @@ namespace HRBirdRepository
         /// <param name="fullImagePath"></param>
         /// <param name="thumbnailPath"></param>
         /// <returns></returns>
-        public async Task UpdateThumbnailAsync(string fullImagePath, string thumbnailPath)
+        public async Task UpdateThumbnailAsync(string id, string thumbnailPath)
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
@@ -462,7 +462,7 @@ namespace HRBirdRepository
             {
                 using Task<int> retourTask = conn.ExecuteAsync(
                     SQLUPDATE_THUMBNAIL, 
-                    new { ThumbnailUrl = thumbnailPath, FullImageUrl = fullImagePath });
+                    new { ThumbnailUrl = thumbnailPath, Id = new Guid(id) });
                 await retourTask;
                 if (!retourTask.IsCompletedSuccessfully)
                 {
@@ -483,7 +483,7 @@ namespace HRBirdRepository
         /// </summary>
         /// <param name="fullImageUrl"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<HRSubmitPictureListItem>> GetSubmittedPicturesByFullImageUrlAsync(string fullImageUrl)
+        public async Task<HRSubmitPictureListItem> GetSubmittedPicturesByID(string id)
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
@@ -491,11 +491,11 @@ namespace HRBirdRepository
             conn.Open();
             try
             {
-                using Task<IEnumerable<HRSubmitPictureListItem>> retourTask = conn.QueryAsync<HRSubmitPictureListItem>(SQLQUERY_FULLIMAGE, new { FullImageUrl = fullImageUrl });
+                using Task<IEnumerable<HRSubmitPictureListItem>> retourTask = conn.QueryAsync<HRSubmitPictureListItem>(SQLQUERY_BYID, new { Id = new Guid(id) });
                 await retourTask;
                 if (retourTask.IsCompletedSuccessfully)
                 {
-                    return retourTask.Result;
+                    return retourTask.Result.FirstOrDefault();
                 }
                 else
                 {

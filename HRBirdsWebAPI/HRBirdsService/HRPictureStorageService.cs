@@ -36,6 +36,7 @@ namespace HRBirdService
             _config = config;
             _mapper = mapper;
             _repo = repo;
+            _notifier = notifier;
         }
         /// <summary>
         /// Very first version, no segmentation management.
@@ -44,7 +45,10 @@ namespace HRBirdService
         /// <returns></returns>
         public async Task<string> UploadAsync(FileToCreateDto theFile)
         {
-            if (theFile == null || String.IsNullOrEmpty(theFile.FileAsBase64))
+            if (theFile == null 
+                || String.IsNullOrEmpty(theFile.FileAsBase64)
+                || theFile.SubmittedPicture == null
+                || theFile.SubmittedPicture.Id == Guid.Empty)
             {
                 throw new ArgumentNullException();
             }
@@ -58,28 +62,48 @@ namespace HRBirdService
                 await directoryTask;
                 if (directoryTask.IsCompletedSuccessfully)
                 {
-                    using var fs = new MemoryStream(fToCreate.FileAsByteArray);
 
-                    String blobPath =  _config.Value?.BlobRootURI + directoryTask.Result  +
-                            Guid.NewGuid().ToString() +
+                    using var fs = new MemoryStream(fToCreate.FileAsByteArray);
+                    String rootUrl = _config.Value?.BlobRootURI;
+                    String blobPath = rootUrl + directoryTask.Result  +
+                            theFile.SubmittedPicture.Id.ToString() +
                             "." +
                             "jpeg";
                     Uri blobUri = new Uri(blobPath);
 
                     // Create StorageSharedKeyCredentials object by reading
                     // the values from the configuration (appsettings.json)
+                    String credNameValue = _config?.Value?.StorageSharedKeyCredentialName;
+                    String pwd = _config?.Value?.Password;
                     StorageSharedKeyCredential storageCredentials =
-                        new StorageSharedKeyCredential(_config?.Value?.StorageSharedKeyCredentialName, _config?.Value?.Password);
+                        new StorageSharedKeyCredential(credNameValue, pwd);
 
                     // Create the blob client.
                     BlobClient blobClient = new BlobClient(blobUri, storageCredentials);
-
                     // Upload the file
                     var uploadTask = blobClient.UploadAsync(fs);
                     await uploadTask;
                     if (uploadTask.IsCompletedSuccessfully)
                     {
-                        return blobPath;
+                        //2-
+                        using var notifyResult = _notifier.NotifySignalRRestAsync(
+                            new HRBirdsSignalRNotificationDto()
+                            {
+                                Id = theFile.SubmittedPicture.Id,
+                                Url = blobPath,
+                                VernacularName = theFile.SubmittedPicture.VernacularName
+                            },
+                            HRImageNotifySignalR.NEW_IMAGE_REST_END_POINT_ENV_KEY
+                            );
+                        await notifyResult;
+                        if (notifyResult.IsCompletedSuccessfully)
+                        {
+                            return blobPath;
+                        }
+                        else
+                        {
+                            throw new Exception("_notifier.NotifySignalRRestAsync fail");
+                        }
                     }
                     else
                     {
@@ -93,6 +117,7 @@ namespace HRBirdService
             }
             catch (Exception)
             {
+            
                 throw;
             }
         }
@@ -102,33 +127,30 @@ namespace HRBirdService
         /// <param name="fullImageURL"></param>
         /// <param name="thumbnail"></param>
         /// <returns></returns>
-        public async Task UpdateThumbnailAsync(string fullImageURL, string thumbnail)
+        public async Task UpdateThumbnailAsync(string id, string thumbnail)
         {
             //1- Updatethumbnails in repo
-            using var updateTask = _repo.UpdateThumbnailAsync(fullImageURL, thumbnail);
+            using var updateTask = _repo.UpdateThumbnailAsync(id, thumbnail);
             await updateTask;
             if(updateTask.IsCompletedSuccessfully)
             {
                 //2- GetAll updated images
-                using var getListTask = _repo.GetSubmittedPicturesByFullImageUrlAsync(fullImageURL);
-                await getListTask;
-                if(getListTask.IsCompletedSuccessfully)
+                using var getTask = _repo.GetSubmittedPicturesByID(id);
+                await getTask;
+                if(getTask.IsCompletedSuccessfully)
                 {
                     //TODO use automappper
-                    foreach(HRSubmitPictureListItem iter in getListTask.Result)
-                    {
                         var message = new HRBirdsSignalRNotificationDto()
                         {
-                            Id = iter.Id,
+                            Id = new Guid(id),
                             Url = thumbnail,
-                            VernacularName = iter.VernacularName
+                            VernacularName = getTask.Result.VernacularName
                         };
                         //For each updated items, send notification
                         using var notifyTask = _notifier.NotifySignalRRestAsync(
                             message, 
                             HRImageNotifySignalR.THUMBNAIL_REST_END_POINT_ENV_KEY);
                         await notifyTask;
-                    }
                 }
                 else
                 {

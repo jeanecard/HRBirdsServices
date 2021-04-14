@@ -27,8 +27,18 @@ namespace HRBirdService
                 {
                     var dataAsJson = JsonSerializer.Serialize(data);
                     var requestContent = new StringContent(dataAsJson, Encoding.UTF8, "application/json");
+                    string endpoint = Environment.GetEnvironmentVariable(ressourceRestEnvKey);
+                    if(ressourceRestEnvKey == NEW_IMAGE_REST_END_POINT_ENV_KEY)
+                    {
+                        endpoint = "https://hrbirdssignalrwebapi.azurewebsites.net/api/HRBirdsImage/onNewImageSubmitted";
+                    }
+                    else
+                    {
+                        endpoint = "https://hrbirdssignalrwebapi.azurewebsites.net/api/HRBirdsImage/onThumbnailUpdated";
+
+                    }
                     using var responseTask = client.PutAsync(
-                        Environment.GetEnvironmentVariable(ressourceRestEnvKey), 
+                        endpoint, 
                         requestContent);
                     await responseTask;
                 }

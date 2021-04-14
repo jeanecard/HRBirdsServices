@@ -6,7 +6,7 @@ namespace HRBirdsModelDto
 {
     public class PutThumbnailInputDto
     {
-        public String FullImageURL { get; set; }
+        public String Id { get; set; }
         public String ThumbnailImageURL { get; set; }
 
     }

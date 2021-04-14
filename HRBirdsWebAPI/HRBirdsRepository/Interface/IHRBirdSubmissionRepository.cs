@@ -12,7 +12,7 @@ namespace HRBirdRepository.Interface
     {
         Task<IEnumerable<String>> GetMatchingVernacularNamesAsync(string pattern);
         Task<IEnumerable<HRSubmitPictureListItem>> GetSubmittedPicturesAsync(String vernacularName);
-        Task<IEnumerable<HRSubmitPictureListItem>> GetSubmittedPicturesByFullImageUrlAsync(String fullImageUrl);
+        Task<HRSubmitPictureListItem> GetSubmittedPicturesByID(String id);
         Task<HRSubmitPictureOutput> AddPictureAsync(HRSubmitPictureInput picture);
         Task<HRSubmitPictureInput> UpdatePictureAsync(HRSubmitPictureInput picture);
         Task UpdateThumbnailAsync(String fullImagePath, String thumbnailPath);
