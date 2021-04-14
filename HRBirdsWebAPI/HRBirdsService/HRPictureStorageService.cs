@@ -124,7 +124,9 @@ namespace HRBirdService
                             VernacularName = iter.VernacularName
                         };
                         //For each updated items, send notification
-                        using var notifyTask = _notifier.NotifySignalRRestAsync(message, HRImageNotifySignalR.THUMBNAIL_REST_END_POINT);
+                        using var notifyTask = _notifier.NotifySignalRRestAsync(
+                            message, 
+                            HRImageNotifySignalR.THUMBNAIL_REST_END_POINT_ENV_KEY);
                         await notifyTask;
                     }
                 }

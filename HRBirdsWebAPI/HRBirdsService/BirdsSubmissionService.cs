@@ -123,7 +123,7 @@ namespace HRBirdService
                                 Url = taskPicture.Result.FullImageUrl, 
                                 VernacularName = taskPicture.Result.VernacularName 
                             }, 
-                            HRImageNotifySignalR.NEW_IMAGE_REST_END_POINT
+                            HRImageNotifySignalR.NEW_IMAGE_REST_END_POINT_ENV_KEY
                             );
                         await notifyResult;
                         //3-
