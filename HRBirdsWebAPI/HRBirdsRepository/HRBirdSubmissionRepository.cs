@@ -119,7 +119,6 @@ namespace HRBirdRepository
             conn.Open();
             try
             {
-                picture.Id = Guid.NewGuid();
                 using Task<int> retourTask = conn.ExecuteAsync(SQLINSERT_PICTURE, picture);
                 await retourTask;
                 if (retourTask.IsCompletedSuccessfully)

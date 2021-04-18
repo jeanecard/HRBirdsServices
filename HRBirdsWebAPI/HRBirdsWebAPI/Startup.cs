@@ -41,6 +41,7 @@ namespace HRBirdsWebAPI
             services.AddOptions();
             // Add our Config object so it can be injected
             services.Configure<HRAzureBlobConfig>(Configuration.GetSection("HRAzureBlob"));
+            services.Configure<HRAzureQueueConfig>(Configuration.GetSection("HRAzureQueue"));
 
 
 

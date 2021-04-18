@@ -6,7 +6,7 @@ namespace HRBirdsModelDto
 {
     public class HRSubmitPictureInputDto
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public String VernacularName { get; set; }
         public Guid? AgeType { get; set; }
         public Guid? GenderType { get; set; }

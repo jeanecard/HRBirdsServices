@@ -89,7 +89,7 @@ namespace HRBirdService
                         using var notifyResult = _notifier.NotifySignalRRestAsync(
                             new HRBirdsSignalRNotificationDto()
                             {
-                                Id = theFile.SubmittedPicture.Id,
+                                Id = theFile.SubmittedPicture.Id.Value,
                                 Url = blobPath,
                                 VernacularName = theFile.SubmittedPicture.VernacularName
                             },

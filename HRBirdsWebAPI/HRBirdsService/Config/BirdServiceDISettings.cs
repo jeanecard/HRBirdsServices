@@ -15,6 +15,7 @@ namespace HRBirdService.Config
             services.AddTransient<IHRPictureStorageService, HRPictureStorageService>();
             services.AddTransient<IPictureDataFormatter, PictureDataFormatter>();
             services.AddTransient<IHRImageNotifySignalR, HRImageNotifySignalR>();
+            services.AddTransient<ISubmittedImageNotifier, SubmittedImageNotifier>();
             return services;
         }
     }

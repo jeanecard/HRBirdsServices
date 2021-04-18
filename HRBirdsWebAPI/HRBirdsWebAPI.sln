@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HRBirdService", "HRBirdsSer
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HRBirdsEntities", "HRBirdsEntities\HRBirdsEntities.csproj", "{0510634F-A7EB-43D2-A8DB-4E1BDC7B0335}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRBirdsSignalR", "HRBirdsSignalR\HRBirdsSignalR.csproj", "{742B2B35-2E56-4432-8F8F-18B3BEEBCFF7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HRBirdsSignalR", "HRBirdsSignalR\HRBirdsSignalR.csproj", "{742B2B35-2E56-4432-8F8F-18B3BEEBCFF7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

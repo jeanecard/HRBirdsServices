@@ -1,11 +1,16 @@
-﻿using HRBirdService;
+﻿using Azure.Storage.Queues;
+using HRBirdService;
 using HRBirdService.Interface;
 using HRBirdsModelDto;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
+using System.Xml;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -16,15 +21,19 @@ namespace HRBirdsWebAPI.Controllers
     public class TestController : ControllerBase
     {
         private IHRImageNotifySignalR _signal = null;
+        private ISubmittedImageNotifier _queueService = null;
 
         private TestController()
         {
 
         }
 
-        public TestController(IHRImageNotifySignalR truc)
+        public TestController(
+            IHRImageNotifySignalR truc,
+            ISubmittedImageNotifier machin)
         {
             _signal = truc;
+            _queueService = machin;
         }
         // GET: api/<TestController>
         [HttpGet]
@@ -38,20 +47,26 @@ namespace HRBirdsWebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<string> Get(string id)
         {
-            HRBirdsSignalRNotificationDto toto = new HRBirdsSignalRNotificationDto();
-            toto.Id = new Guid(id);
-            toto.VernacularName = "turdus merula";
-            toto.Url = "agagagaga";
-            try
+            HRSubmitPictureInputDto item = new HRSubmitPictureInputDto()
             {
-                using var saucisse = _signal.NotifySignalRRestAsync(toto, HRImageNotifySignalR.THUMBNAIL_REST_END_POINT_ENV_KEY);
-                await saucisse;
-                return "Ben OK";
-            }
-            catch (Exception ex)
-            {
-                return "ca a chier : " + ex.Message;
-            }
+                AgeType = Guid.NewGuid(),
+                Comment = "un commentaire bateau",
+                Credit = "un credit bateau",
+
+                //Credit = "un crédit bateâu",
+                FullImageUrl = "http://monimage.jpeg",
+                GenderType = Guid.NewGuid(),
+                Id = Guid.NewGuid(),
+                SourceType = Guid.NewGuid(),
+                ThumbnailUrl = String.Empty,
+                VernacularName = "turdus merula",
+               
+            };
+            using var queuetask = _queueService.OnNewMetadataImageAsync(item);
+            await queuetask;
+            return "yes";
+
+
         }
 
         // POST api/<TestController>
