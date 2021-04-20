@@ -98,16 +98,16 @@ namespace HRBirdsWebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> PutThumbnail([FromBody] PutThumbnailInputDto data)
+        public async Task<ActionResult> PutThumbnail([FromBody] HRSubmitPictureInputDto data)
         {
             if(data == null
-                || String.IsNullOrEmpty( data.Id) )
+                || String.IsNullOrEmpty( data.FullImageUrl) )
             {
                 return new StatusCodeResult(StatusCodes.Status400BadRequest);
             }
             try
             {
-                using var updateTask = _storageService.UpdateThumbnailAsync(data.Id, data.ThumbnailImageURL);
+                using var updateTask = _storageService.UpdateThumbnailAsync(data.FullImageUrl, data.ThumbnailUrl);
                 await updateTask;
                 if(updateTask.IsCompletedSuccessfully)
                 {
