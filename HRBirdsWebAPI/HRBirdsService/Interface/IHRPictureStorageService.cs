@@ -8,6 +8,6 @@ namespace HRBirdService.Interface
     public interface IHRPictureStorageService
     {
         Task<String> UploadAsync(FileToCreateDto theFile);
-        Task UpdateThumbnailAsync(String fullImageURL, String thumbnail);
+        Task UpdateThumbnailAsync(Guid id, String thumbnail);
     }
 }

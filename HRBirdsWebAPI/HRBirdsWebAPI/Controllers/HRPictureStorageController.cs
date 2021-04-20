@@ -101,13 +101,13 @@ namespace HRBirdsWebAPI.Controllers
         public async Task<ActionResult> PutThumbnail([FromBody] HRSubmitPictureInputDto data)
         {
             if(data == null
-                || String.IsNullOrEmpty( data.FullImageUrl) )
+                || !data.Id.HasValue) 
             {
                 return new StatusCodeResult(StatusCodes.Status400BadRequest);
             }
             try
             {
-                using var updateTask = _storageService.UpdateThumbnailAsync(data.FullImageUrl, data.ThumbnailUrl);
+                using var updateTask = _storageService.UpdateThumbnailAsync(data.Id.Value, data.ThumbnailUrl);
                 await updateTask;
                 if(updateTask.IsCompletedSuccessfully)
                 {

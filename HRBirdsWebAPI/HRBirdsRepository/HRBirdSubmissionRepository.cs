@@ -451,7 +451,7 @@ namespace HRBirdRepository
         /// <param name="fullImagePath"></param>
         /// <param name="thumbnailPath"></param>
         /// <returns></returns>
-        public async Task UpdateThumbnailAsync(string id, string thumbnailPath)
+        public async Task UpdateThumbnailAsync(Guid id, string thumbnailPath)
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
@@ -461,7 +461,7 @@ namespace HRBirdRepository
             {
                 using Task<int> retourTask = conn.ExecuteAsync(
                     SQLUPDATE_THUMBNAIL, 
-                    new { ThumbnailUrl = thumbnailPath, Id = new Guid(id) });
+                    new { ThumbnailUrl = thumbnailPath, Id = id });
                 await retourTask;
                 if (!retourTask.IsCompletedSuccessfully)
                 {

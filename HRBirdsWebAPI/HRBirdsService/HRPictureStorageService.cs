@@ -135,22 +135,12 @@ namespace HRBirdService
         /// <param name="fullImageURL"></param>
         /// <param name="thumbnail"></param>
         /// <returns></returns>
-        public async Task UpdateThumbnailAsync(string id, string thumbnail)
+        public async Task UpdateThumbnailAsync(Guid id, string thumbnail)
         {
             //1- Updatethumbnails in repo
             using var updateTask = _repo.UpdateThumbnailAsync(id, thumbnail);
             await updateTask;
-            if (updateTask.IsCompletedSuccessfully)
-            {
-                //2- GetAll updated images
-                using var getTask = _repo.GetSubmittedPicturesByID(id);
-                await getTask;
-                if (!getTask.IsCompletedSuccessfully)
-                {
-                    throw new Exception("GetSubmittedPicturesByFullImageUrlAsync failed.");
-                }
-            }
-            else
+            if (!updateTask.IsCompletedSuccessfully)
             {
                 throw new Exception("UpdateThumbnailAsync failed.");
             }
