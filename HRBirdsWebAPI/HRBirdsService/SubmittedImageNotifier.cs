@@ -67,11 +67,11 @@ namespace HRBirdService
             }
         }
         /// <summary>
-        /// 
+        /// Add message in main queue to start thumbnail processing
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task OnThumbnailUpdatedAsync(HRSubmitPictureListItemDto message)
+        public async Task OnNewImageAsync(HRSubmitPictureInputDto message)
         {
             if (message == null)
             {
@@ -86,7 +86,7 @@ namespace HRBirdService
 
             QueueClient queueClient = new QueueClient(
                 _config.Value?.HRSubmittedPictureCx,
-                _config.Value?.HRUpdteThumbnailQueueName,
+                _config.Value?.HRMainNewImageQueueName,
                 queueClientOptions);
 
             // Create the queue if it doesn't already exist

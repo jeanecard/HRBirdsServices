@@ -35,7 +35,7 @@ namespace HRBirdsSignalR.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> OnThumbnailUpdatedAsync([FromBody] HRBirdsSignalRNotificationDto data)
+        public async Task<ActionResult> OnThumbnailUpdatedAsync([FromBody] HRSubmitPictureInputDto data)
         {
             if (data == null
                 || String.IsNullOrEmpty(data.VernacularName)

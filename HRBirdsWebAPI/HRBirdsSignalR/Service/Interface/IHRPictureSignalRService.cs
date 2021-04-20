@@ -9,6 +9,6 @@ namespace HRBirdsSignalR.Interface
     public interface IHRPictureSignalRService
     {
         Task OnNewImageSubmittedAsync(HRSubmitPictureInputDto data);
-        Task OnThumbnailUpdatedAsync(HRBirdsSignalRNotificationDto data);
+        Task OnThumbnailUpdatedAsync(HRSubmitPictureInputDto data);
     }
 }

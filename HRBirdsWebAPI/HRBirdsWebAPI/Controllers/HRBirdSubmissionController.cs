@@ -165,6 +165,7 @@ namespace HRBordersAndCountriesWebAPI2.Controllers
             }
             try
             {
+                picture.Id = Guid.NewGuid();
                 using var taskResult = _birdsSubmissionService.AddPictureDataAsync(picture);
                 await taskResult;
                 if (taskResult.IsCompletedSuccessfully)

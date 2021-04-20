@@ -42,6 +42,7 @@ namespace HRBirdsWebAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<HRSubmitPictureOutputDto>> Post([FromBody] FileToCreateDto theFile)
         {
+            //TODO move in a specific serviec, controller is doing too much stuffs!
             if(theFile == null 
                 || theFile.SubmittedPicture == null
                 || theFile.SubmittedPicture.Id == null
@@ -72,6 +73,8 @@ namespace HRBirdsWebAPI.Controllers
                     await subTask;
                     if (subTask.IsCompletedSuccessfully)
                     {
+                        //3- notifiy queue service
+
                         return Ok(subTask.Result);
                     }
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);

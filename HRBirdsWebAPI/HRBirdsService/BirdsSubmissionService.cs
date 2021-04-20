@@ -110,8 +110,8 @@ namespace HRBirdService
                 await thumbnailTask;
                 if (thumbnailTask.IsCompletedSuccessfully)
                 {
+                    picture.ThumbnailUrl = thumbnailTask.Result;
                     var transcoPic = _mapper.Map<HRSubmitPictureInput>(picture);
-                    transcoPic.ThumbnailUrl = thumbnailTask.Result;
                     using var taskPicture = _birdsSubmissionrepo.AddPictureAsync(transcoPic);
                     await taskPicture;
                     if (taskPicture.IsCompletedSuccessfully)

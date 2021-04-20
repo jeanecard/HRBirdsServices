@@ -28,7 +28,11 @@ namespace HRBirdsSignalR.Service
         {
             if(data != null)
             {
-                using var notifyTask = _informHub.Clients.All.SendAsync(HRBirdPictureSubmissionHub.CLIENT_NEW_IMAGE_NOTIFICATION_KEY, data.VernacularName, data.Id, data.ThumbnailUrl);
+                using var notifyTask = _informHub.Clients.All.SendAsync(
+                    HRBirdPictureSubmissionHub.CLIENT_NEW_IMAGE_NOTIFICATION_KEY, 
+                    data.VernacularName, 
+                    data.Id, 
+                    data.ThumbnailUrl);
                 await notifyTask;
             }
         }
@@ -37,11 +41,15 @@ namespace HRBirdsSignalR.Service
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public async Task OnThumbnailUpdatedAsync(HRBirdsSignalRNotificationDto data)
+        public async Task OnThumbnailUpdatedAsync(HRSubmitPictureInputDto data)
         {
             if (data != null)
             {
-                using var notifyTask = _informHub.Clients.All.SendAsync(HRBirdPictureSubmissionHub.CLIENT_UPDATE_THUMBNAIL_NOTIFICATION_KEY, data.VernacularName, data.Id, data.Url);
+                using var notifyTask = _informHub.Clients.All.SendAsync(
+                    HRBirdPictureSubmissionHub.CLIENT_UPDATE_THUMBNAIL_NOTIFICATION_KEY, 
+                    data.VernacularName, 
+                    data.Id, 
+                    data.ThumbnailUrl);
                 await notifyTask;
             }
         }
