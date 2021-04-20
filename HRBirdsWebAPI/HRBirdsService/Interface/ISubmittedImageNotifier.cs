@@ -9,5 +9,7 @@ namespace HRBirdService.Interface
     public interface ISubmittedImageNotifier
     {
         Task OnNewMetadataImageAsync(HRSubmitPictureInputDto message);
+        Task OnThumbnailUpdatedAsync(HRSubmitPictureListItemDto message);
+
     }
 }

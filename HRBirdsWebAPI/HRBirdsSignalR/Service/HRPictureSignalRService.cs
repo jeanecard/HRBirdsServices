@@ -24,11 +24,11 @@ namespace HRBirdsSignalR.Service
         {
             _informHub = hubContext;
         }
-        public async Task OnNewImageSubmittedAsync(HRBirdsSignalRNotificationDto data)
+        public async Task OnNewImageSubmittedAsync(HRSubmitPictureInputDto data)
         {
             if(data != null)
             {
-                using var notifyTask = _informHub.Clients.All.SendAsync(HRBirdPictureSubmissionHub.CLIENT_NEW_IMAGE_NOTIFICATION_KEY, data.VernacularName, data.Id, data.Url);
+                using var notifyTask = _informHub.Clients.All.SendAsync(HRBirdPictureSubmissionHub.CLIENT_NEW_IMAGE_NOTIFICATION_KEY, data.VernacularName, data.Id, data.ThumbnailUrl);
                 await notifyTask;
             }
         }

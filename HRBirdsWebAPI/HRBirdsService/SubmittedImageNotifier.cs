@@ -3,6 +3,7 @@ using HRBirdsEntities;
 using HRBirdService.Interface;
 using HRBirdsModelDto;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -36,27 +37,74 @@ namespace HRBirdService
             }
             // Get the connection string from app settings
             // Instantiate a QueueClient which will be used to create and manipulate the queue
+            QueueClientOptions queueClientOptions = new QueueClientOptions()
+            {
+                MessageEncoding = QueueMessageEncoding.Base64
+            };
+
             QueueClient queueClient = new QueueClient(
                 _config.Value?.HRSubmittedPictureCx, 
-                _config.Value?.HRNewImageMetadataQueueName);
+                _config.Value?.HRNewImageMetadataQueueName,
+                queueClientOptions);
 
             // Create the queue if it doesn't already exist
             queueClient.CreateIfNotExists();
 
             if (queueClient.Exists())
             {
-                System.Xml.Serialization.XmlSerializer x = new System.Xml.Serialization.XmlSerializer
-                    (message.GetType());
 
-                using (StringWriter textWriter = new StringWriter())
+                String messageToString = JsonConvert.SerializeObject(message);
+
+                var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(messageToString);
+                string message64 = System.Convert.ToBase64String(plainTextBytes);
+                using var queueTask = queueClient.SendMessageAsync(message64);
+
+                await queueTask;
+                if (!queueTask.IsCompletedSuccessfully)
                 {
-                    x.Serialize(textWriter, message);
-                    using var queueTask = queueClient.SendMessageAsync(textWriter.ToString());
-                    await queueTask;
-                    if(!queueTask.IsCompletedSuccessfully)
-                    {
-                        throw new Exception("queueClient.SendMessageAsync failure.");
-                    }
+                    throw new Exception("queueClient.SendMessageAsync failure.");
+                }
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public async Task OnThumbnailUpdatedAsync(HRSubmitPictureListItemDto message)
+        {
+            if (message == null)
+            {
+                return;
+            }
+            // Get the connection string from app settings
+            // Instantiate a QueueClient which will be used to create and manipulate the queue
+            QueueClientOptions queueClientOptions = new QueueClientOptions()
+            {
+                MessageEncoding = QueueMessageEncoding.Base64
+            };
+
+            QueueClient queueClient = new QueueClient(
+                _config.Value?.HRSubmittedPictureCx,
+                _config.Value?.HRUpdteThumbnailQueueName,
+                queueClientOptions);
+
+            // Create the queue if it doesn't already exist
+            queueClient.CreateIfNotExists();
+
+            if (queueClient.Exists())
+            {
+
+                String messageToString = JsonConvert.SerializeObject(message);
+
+                var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(messageToString);
+                string message64 = System.Convert.ToBase64String(plainTextBytes);
+                using var queueTask = queueClient.SendMessageAsync(message64);
+
+                await queueTask;
+                if (!queueTask.IsCompletedSuccessfully)
+                {
+                    throw new Exception("queueClient.SendMessageAsync failure.");
                 }
             }
         }

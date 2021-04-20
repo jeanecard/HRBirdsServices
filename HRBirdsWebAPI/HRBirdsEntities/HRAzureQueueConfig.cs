@@ -8,5 +8,8 @@ namespace HRBirdsEntities
     {
         public String HRSubmittedPictureCx { get; set; }
         public String HRNewImageMetadataQueueName { get; set; }
+        public String HRUpdteThumbnailQueueName { get; set; }
+
+
     }
 }

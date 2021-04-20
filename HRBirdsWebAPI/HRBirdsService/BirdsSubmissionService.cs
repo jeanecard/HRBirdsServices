@@ -19,6 +19,8 @@ namespace HRBirdService
         private readonly IHRPictureConverterRepository _birdsPictureConverter = null;
         private readonly IMapper _mapper = null;
         private readonly IHRBirdImageCDNService _imgCDNService = null;
+        private ISubmittedImageNotifier _queueService = null;
+
 
         private BirdsSubmissionService()
         {
@@ -34,13 +36,15 @@ namespace HRBirdService
             IHRBirdSubmissionRepository bSubRepo,
             IHRPictureConverterRepository picConverter,
             IHRBirdImageCDNService cdn,
-            IMapper mapper)
+        ISubmittedImageNotifier queueService,
+        IMapper mapper)
         {
             _birdsRepo = bRepo;
             _birdsSubmissionrepo = bSubRepo;
             _birdsPictureConverter = picConverter;
             _mapper = mapper;
             _imgCDNService = cdn;
+            _queueService = queueService;
 
         }
 
@@ -92,7 +96,8 @@ namespace HRBirdService
         }
         /// <summary>
         /// 1- Submit picture to image Repository
-        /// 2- Return pictures
+        /// 2- Push new imqge metadata to Queue
+        /// 3- Return image
         /// </summary>
         /// <param name="picture"></param>
         /// <returns></returns>
@@ -111,14 +116,14 @@ namespace HRBirdService
                     await taskPicture;
                     if (taskPicture.IsCompletedSuccessfully)
                     {
-
-                   
-                            //2-
-                            return _mapper.Map<HRSubmitPictureOutputDto>(taskPicture.Result);
-
+                        //2-
+                        using var queuetask = _queueService.OnNewMetadataImageAsync(picture);
+                        await queuetask;
+                        //3-
+                        return _mapper.Map<HRSubmitPictureOutputDto>(taskPicture.Result);
                     }
                     else
-                    { 
+                    {
                         throw new Exception("_birdsPictureConverter.AddPictureAsync fail.");
                     }
                 }

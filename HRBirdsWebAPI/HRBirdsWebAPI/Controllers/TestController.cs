@@ -1,16 +1,8 @@
-﻿using Azure.Storage.Queues;
-using HRBirdService;
-using HRBirdService.Interface;
+﻿using HRBirdService.Interface;
 using HRBirdsModelDto;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
-using System.Xml;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -51,7 +43,7 @@ namespace HRBirdsWebAPI.Controllers
             {
                 AgeType = Guid.NewGuid(),
                 Comment = "un commentaire bateau",
-                Credit = "un credit bateau",
+                Credit = "un credit bateau é ",
 
                 //Credit = "un crédit bateâu",
                 FullImageUrl = "http://monimage.jpeg",
@@ -68,7 +60,11 @@ namespace HRBirdsWebAPI.Controllers
 
 
         }
-
+        //public static string Base64Decode(string base64EncodedData)
+        //{
+        //    var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
+        //    return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+        //}
         // POST api/<TestController>
         [HttpPost]
         public void Post([FromBody] string value)
