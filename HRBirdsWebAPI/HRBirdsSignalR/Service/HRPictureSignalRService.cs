@@ -29,7 +29,7 @@ namespace HRBirdsSignalR.Service
         {
             if(data != null)
             {
-                String jsonData = JsonSerializer.Serialize(data);
+                String jsonData = JsonSerializer.Serialize(new HRSubmitPictureListItemJsonDto(data));
                 using var notifyTask = _informHub.Clients.All.SendAsync(
                     HRBirdPictureSubmissionHub.CLIENT_NEW_IMAGE_NOTIFICATION_KEY,
                     jsonData);
@@ -45,7 +45,7 @@ namespace HRBirdsSignalR.Service
         {
             if (data != null)
             {
-                String jsonData = JsonSerializer.Serialize(data);
+                String jsonData = JsonSerializer.Serialize(new HRSubmitPictureListItemJsonDto(data));
 
                 using var notifyTask = _informHub.Clients.All.SendAsync(
                     HRBirdPictureSubmissionHub.CLIENT_UPDATE_THUMBNAIL_NOTIFICATION_KEY,
