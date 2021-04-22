@@ -35,7 +35,7 @@ namespace HRBirdsSignalR.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> OnThumbnailUpdatedAsync([FromBody] HRSubmitPictureInputDto data)
+        public async Task<ActionResult> OnThumbnailUpdatedAsync([FromBody] HRSubmitPictureListItemDto data)
         {
             if (data == null
                 || String.IsNullOrEmpty(data.VernacularName)
@@ -72,7 +72,7 @@ namespace HRBirdsSignalR.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> onNewImageSubmittedAsync([FromBody] HRSubmitPictureInputDto data)
+        public async Task<ActionResult> onNewImageSubmittedAsync([FromBody] HRSubmitPictureListItemDto data)
         {
             if (data == null
                 || String.IsNullOrEmpty(data.VernacularName)
