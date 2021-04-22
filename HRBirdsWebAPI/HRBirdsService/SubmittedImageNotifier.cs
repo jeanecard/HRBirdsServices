@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace HRBirdService
 {
+    //!TODO refacto
     public class SubmittedImageNotifier : ISubmittedImageNotifier
     {
         private readonly IOptions<HRAzureQueueConfig> _config = null;
@@ -29,7 +30,7 @@ namespace HRBirdService
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task OnNewMetadataImageAsync(HRSubmitPictureInputDto message)
+        public async Task OnNewMetadataImageAsync(HRSubmitPictureListItemDto message)
         {
             if(message == null)
             {
@@ -71,7 +72,7 @@ namespace HRBirdService
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public async Task OnNewImageAsync(HRSubmitPictureInputDto message)
+        public async Task OnNewImageAsync(HRSubmitPictureListItemDto message)
         {
             if (message == null)
             {

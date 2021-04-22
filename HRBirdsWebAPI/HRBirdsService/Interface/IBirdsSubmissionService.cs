@@ -14,7 +14,7 @@ namespace HRBirdService.Interface
         Task<HRSubmitPictureListItemDto> GetSubmittedPictureAsync(String id);
 
         Task<IEnumerable<String>> GetMatchingVernacularNamesAsync(string pattern);
-        Task<HRSubmitPictureOutputDto> AddPictureDataAsync(HRSubmitPictureInputDto picture);
+        Task<HRSubmitPictureListItemDto> AddPictureDataAsync(HRSubmitPictureInputDto picture);
         Task<HRSubmitPictureOutputDto> UpdatePictureDataAsync(HRSubmitPictureInputDto test);
         Task DeletePictureDataAsync(Guid id);
         Task<IEnumerable<HRSubmitGenderDto>> GetGenderTypesAsync();

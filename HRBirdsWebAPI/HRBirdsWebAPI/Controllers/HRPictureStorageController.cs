@@ -73,8 +73,6 @@ namespace HRBirdsWebAPI.Controllers
                     await subTask;
                     if (subTask.IsCompletedSuccessfully)
                     {
-                        //3- notifiy queue service
-
                         return Ok(subTask.Result);
                     }
                     return new StatusCodeResult(StatusCodes.Status500InternalServerError);

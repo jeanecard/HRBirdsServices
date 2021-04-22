@@ -111,8 +111,12 @@ namespace HRBirdRepository
         /// </summary>
         /// <param name="picture"></param>
         /// <returns></returns>
-        public async Task<HRSubmitPictureOutput> AddPictureAsync(HRSubmitPictureInput picture)
+        public async Task<HRSubmitPictureListItem> AddPictureAsync(HRSubmitPictureInput picture)
         {
+            if(picture == null || picture.Id == null || picture.Id == Guid.Empty)
+            {
+                throw new ArgumentNullException();
+            }
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);
             using var conn = new NpgsqlConnection(cxString);
@@ -123,7 +127,16 @@ namespace HRBirdRepository
                 await retourTask;
                 if (retourTask.IsCompletedSuccessfully)
                 {
-                    return _mapper.Map<HRSubmitPictureOutput>(picture); 
+                    using var getTask = GetSubmittedPicturesByIDAsync(picture.Id.ToString());
+                    await getTask;
+                    if (getTask.IsCompletedSuccessfully) 
+                    {
+                        return getTask.Result;
+                    }
+                    else
+                    {
+                        throw new Exception("GetSubmittedPicturesByIDAsync : Can not complete Task.");
+                    }
                 }
                 else
                 { 
@@ -482,7 +495,7 @@ namespace HRBirdRepository
         /// </summary>
         /// <param name="fullImageUrl"></param>
         /// <returns></returns>
-        public async Task<HRSubmitPictureListItem> GetSubmittedPicturesByID(string id)
+        public async Task<HRSubmitPictureListItem> GetSubmittedPicturesByIDAsync(string id)
         {
             String cxString = _config.GetConnectionString(CONNECTION_STRING_KEY);
             cxString = String.Format(cxString, _config[_DBUSER], _config[_DBPASSWORD]);

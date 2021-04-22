@@ -54,7 +54,6 @@ namespace HRBirdService
             {
                 throw new ArgumentNullException();
             }
-
             //1-
             using var blobTask = UploadInBlobAsync(theFile);
             await blobTask;
@@ -62,15 +61,25 @@ namespace HRBirdService
             {
                 theFile.SubmittedPicture.FullImageUrl = blobTask.Result;
                 //2-
-                using var queueTask = _queueService.OnNewImageAsync(theFile.SubmittedPicture);
-                await queueTask;
-                if (queueTask.IsCompletedSuccessfully)
+                using var getTask = _repo.GetSubmittedPicturesByIDAsync(theFile.SubmittedPicture.Id.ToString());
+                await getTask;
+                if(getTask.IsCompletedSuccessfully)
                 {
-                    return blobTask.Result;
+                    var  itemToQueue = _mapper.Map<HRSubmitPictureListItemDto>(getTask.Result);
+                    using var queueTask = _queueService.OnNewImageAsync(itemToQueue);
+                    await queueTask;
+                    if (queueTask.IsCompletedSuccessfully)
+                    {
+                        return blobTask.Result;
+                    }
+                    else
+                    {
+                        throw new Exception("UploadInBlobAsync fail");
+                    }
                 }
                 else
                 {
-                    throw new Exception("UploadInBlobAsync fail");
+                    throw new Exception("_repo.GetSubmittedPicturesByIDAsync fail");
                 }
             }
             else

@@ -101,7 +101,7 @@ namespace HRBirdService
         /// </summary>
         /// <param name="picture"></param>
         /// <returns></returns>
-        public async Task<HRSubmitPictureOutputDto> AddPictureDataAsync(HRSubmitPictureInputDto picture)
+        public async Task<HRSubmitPictureListItemDto> AddPictureDataAsync(HRSubmitPictureInputDto picture)
         {
             if (picture != null)
             {
@@ -116,11 +116,12 @@ namespace HRBirdService
                     await taskPicture;
                     if (taskPicture.IsCompletedSuccessfully)
                     {
+                        var retour = _mapper.Map<HRSubmitPictureListItemDto>(taskPicture.Result);
                         //2-
-                        using var queuetask = _queueService.OnNewMetadataImageAsync(picture);
+                        using var queuetask = _queueService.OnNewMetadataImageAsync(retour);
                         await queuetask;
                         //3-
-                        return _mapper.Map<HRSubmitPictureOutputDto>(taskPicture.Result);
+                        return retour;
                     }
                     else
                     {
@@ -155,7 +156,7 @@ namespace HRBirdService
 
         public async Task<HRSubmitPictureListItemDto> GetSubmittedPictureAsync(String id)
         {
-            using var birdSubmissionTask = _birdsSubmissionrepo.GetSubmittedPicturesByID(id);
+            using var birdSubmissionTask = _birdsSubmissionrepo.GetSubmittedPicturesByIDAsync(id);
             await birdSubmissionTask;
             if (birdSubmissionTask.IsCompletedSuccessfully)
             {

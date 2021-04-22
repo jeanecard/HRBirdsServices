@@ -9,6 +9,7 @@ namespace HRBirdsModel
     /// </summary>
     public class HRBirdMainOutput
     {
+#pragma warning disable IDE1006
         /// <summary>
         /// 
         /// </summary>
@@ -16,10 +17,14 @@ namespace HRBirdsModel
         /// <summary>
         /// 
         /// </summary>
+#pragma warning disable IDE1006
+        /// 
         public String name { get; set; }
         /// <summary>
         /// 
         /// </summary>
+#pragma warning disable IDE1006
+        /// 
         public String scientificName { get; set; }
         /// <summary>
         /// 

@@ -54,7 +54,7 @@ namespace HRBirdsWebAPI.Controllers
                 VernacularName = "turdus merula",
                
             };
-            using var queuetask = _queueService.OnNewMetadataImageAsync(item);
+            using var queuetask = _queueService.OnNewMetadataImageAsync(null);
             await queuetask;
             return "yes";
 

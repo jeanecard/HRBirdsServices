@@ -23,30 +23,22 @@ namespace HRBirdService
         {
             using (var client = new HttpClient())
             {
-                try
+                var dataAsJson = JsonSerializer.Serialize(data);
+                var requestContent = new StringContent(dataAsJson, Encoding.UTF8, "application/json");
+                string endpoint = Environment.GetEnvironmentVariable(ressourceRestEnvKey);
+                if (ressourceRestEnvKey == NEW_IMAGE_REST_END_POINT_ENV_KEY)
                 {
-                    var dataAsJson = JsonSerializer.Serialize(data);
-                    var requestContent = new StringContent(dataAsJson, Encoding.UTF8, "application/json");
-                    string endpoint = Environment.GetEnvironmentVariable(ressourceRestEnvKey);
-                    if(ressourceRestEnvKey == NEW_IMAGE_REST_END_POINT_ENV_KEY)
-                    {
-                        endpoint = "https://hrbirdssignalrwebapi.azurewebsites.net/api/HRBirdsImage/onNewImageSubmitted";
-                    }
-                    else
-                    {
-                        endpoint = "https://hrbirdssignalrwebapi.azurewebsites.net/api/HRBirdsImage/onThumbnailUpdated";
+                    endpoint = "https://hrbirdssignalrwebapi.azurewebsites.net/api/HRBirdsImage/onNewImageSubmitted";
+                }
+                else
+                {
+                    endpoint = "https://hrbirdssignalrwebapi.azurewebsites.net/api/HRBirdsImage/onThumbnailUpdated";
 
-                    }
-                    using var responseTask = client.PutAsync(
-                        endpoint, 
-                        requestContent);
-                    await responseTask;
                 }
-                catch(Exception ex)
-                {
-                    int i = 41;
-                    i++;
-                }
+                using var responseTask = client.PutAsync(
+                    endpoint,
+                    requestContent);
+                await responseTask;
             }
         }
     }
