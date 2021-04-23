@@ -66,6 +66,7 @@ namespace HRBirdService
                 if(getTask.IsCompletedSuccessfully)
                 {
                     var  itemToQueue = _mapper.Map<HRSubmitPictureListItemDto>(getTask.Result);
+                    itemToQueue.FullImageUrl = blobTask.Result;
                     using var queueTask = _queueService.OnNewImageAsync(itemToQueue);
                     await queueTask;
                     if (queueTask.IsCompletedSuccessfully)
