@@ -8,6 +8,7 @@ using HRBirdsModelDto;
 using Microsoft.Extensions.Options;
 using System;
 using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace HRBirdService
@@ -42,6 +43,7 @@ namespace HRBirdService
         /// <summary>
         /// 1- upload in Blob storage
         /// 2- queue new message 
+        /// 3- Temporary cheat, wake up listening Azure functions (fire and forget)
         /// </summary>
         /// <param name="theFile"></param>
         /// <returns></returns>
@@ -63,14 +65,16 @@ namespace HRBirdService
                 //2-
                 using var getTask = _repo.GetSubmittedPicturesByIDAsync(theFile.SubmittedPicture.Id.ToString());
                 await getTask;
-                if(getTask.IsCompletedSuccessfully)
+                if (getTask.IsCompletedSuccessfully)
                 {
-                    var  itemToQueue = _mapper.Map<HRSubmitPictureListItemDto>(getTask.Result);
+                    var itemToQueue = _mapper.Map<HRSubmitPictureListItemDto>(getTask.Result);
                     itemToQueue.FullImageUrl = blobTask.Result;
                     using var queueTask = _queueService.OnNewImageAsync(itemToQueue);
                     await queueTask;
                     if (queueTask.IsCompletedSuccessfully)
                     {
+                        //3-
+                        WakeUpAzureFunction();
                         return blobTask.Result;
                     }
                     else
@@ -88,6 +92,25 @@ namespace HRBirdService
                 throw new Exception("UploadInBlobAsync fail");
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        private void WakeUpAzureFunction()
+        {
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    String endpoint = _config?.Value?.WakeUpAzureFunctionEndPoint; 
+                    var response = client.GetAsync(endpoint);
+                }
+                catch
+                {
+                    //Dummy
+                }
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>

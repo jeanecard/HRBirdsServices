@@ -9,5 +9,6 @@ namespace HRBirdsEntities
         public String Password { get; set; }
         public String StorageSharedKeyCredentialName { get; set; }
         public String BlobRootURI { get; set; }
+        public String WakeUpAzureFunctionEndPoint { get; set; }
     }
 }
